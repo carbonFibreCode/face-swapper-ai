@@ -19,6 +19,11 @@ model User {
   email         String
   emailVerified Boolean   @default(false)
   image         String?
+  credits        Int       @default(10)
+  assets         Asset[]
+  generations    Generation[]
+  plan           SubscriptionPlan @default(FREE)
+  stripeCustomerId String?
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
   sessions      Session[]
@@ -74,4 +79,86 @@ model Verification {
 
   @@index([identifier])
   @@map("verification")
+}
+
+model Asset {
+  id          String   @id @default(cuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  url         String   // S3/R2 URL
+  type        AssetType // IMAGE (Face) or VIDEO (Source)
+  
+  // Clean UI Metadata: Show aspect ratio/size in library without loading the file
+  width       Int?
+  height      Int?
+  
+  createdAt   DateTime @default(now())
+  
+  generations Generation[] // Track which assets were used where
+  
+  @@index([userId])
+}
+
+model Template {
+  id          String   @id @default(cuid())
+  
+  thumbnailUrl String
+  videoUrl     String
+  
+  // UX: Tags for filtering (e.g. "Funny", "Movie Scene")
+  tags         String[] 
+  duration     Float    // In seconds (to estimate cost)
+  
+  // Visibility control (e.g. disable a buggy template without deleting it)
+  isActive     Boolean  @default(true)
+  
+  createdAt    DateTime @default(now())
+  generations  Generation[]
+}
+
+model Generation {
+  id           String   @id @default(cuid())
+  userId       String
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  // Inputs
+  templateId   String?  // Optional: User might upload their OWN video eventually
+  template     Template? @relation(fields: [templateId], references: [id])
+  
+  assetId      String   // The Face used
+  asset        Asset    @relation(fields: [assetId], references: [id])
+  
+  // AI Status State Machine
+  status       JobStatus @default(QUEUED)
+  failureReason String?  // Store error msg from Replicate if it fails
+  
+  // Cost Tracking (Audit trail)
+  cost         Int      @default(1)
+  
+  // Provider Metadata (Crucial for Webhooks)
+  providerJobId String? @unique // The ID returned by Replicate/Fal.ai
+  resultUrl     String? // The final video
+  
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt // Track how long generation took
+
+  @@index([userId])
+  @@index([providerJobId]) // Faster webhook lookups
+}
+
+enum SubscriptionPlan {
+  FREE
+  PRO
+}
+
+enum AssetType {
+  IMAGE
+  VIDEO
+}
+
+enum JobStatus {
+  QUEUED     
+  COMPLETED 
+  FAILED     
 }
