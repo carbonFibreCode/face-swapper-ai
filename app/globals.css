@@ -1,2 +1,12 @@
 @import "tailwindcss";
 @import "tw-animate-css";
+
+.icon-gradient-cyan-purple {
+  filter: drop-shadow(0 0 8px rgb(34 211 238)) drop-shadow(0 0 12px rgb(168 85 247));
+  color: #a855f7;
+}
+
+.icon-gradient-pink {
+  filter: drop-shadow(0 0 8px rgb(34 211 238)) drop-shadow(0 0 12px rgb(236 72 153));
+  color: #ec4899;
+}
