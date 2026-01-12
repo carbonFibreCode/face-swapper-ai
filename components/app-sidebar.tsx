@@ -23,7 +23,8 @@ import {
     SidebarRail,
 } from "@/components/ui/sidebar"
 import Link from "next/link"
-import { usePathname } from "next/navigation"
+import { usePathname, useRouter } from "next/navigation"
+import { signOut } from "@/lib/auth-client"
 
 const items = [
     {
@@ -55,6 +56,12 @@ const items = [
 
 export function AppSidebar() {
     const pathname = usePathname()
+    const router = useRouter()
+
+    const handleSignOut = async () => {
+        await signOut()
+        router.push('/login')
+    }
 
     return (
         <Sidebar collapsible="icon">
@@ -94,7 +101,10 @@ export function AppSidebar() {
             <SidebarFooter>
                 <SidebarMenu>
                     <SidebarMenuItem>
-                        <SidebarMenuButton className="text-red-500 hover:text-red-600">
+                        <SidebarMenuButton 
+                            onClick={handleSignOut}
+                            className="text-red-500 hover:text-red-600"
+                        >
                             <LogOut />
                             <span>Sign Out</span>
                         </SidebarMenuButton>
