@@ -14,9 +14,9 @@ export const editorContent = {
     preparingVideo: "Preparing video upload...",
     preparingImage: "Preparing image upload...",
     labels: {
-        video: "Video",
-        face: "Face"
-    }
+      video: "Video",
+      face: "Face",
+    },
   },
   status: {
     ready: "Assets ready! Starting AI processing...",

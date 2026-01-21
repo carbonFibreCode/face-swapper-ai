@@ -1,19 +1,19 @@
 export enum JobStatus {
-    QUEUED = "QUEUED",
-    COMPLETED = "COMPLETED",
-    FAILED = "FAILED",
+  QUEUED = "QUEUED",
+  COMPLETED = "COMPLETED",
+  FAILED = "FAILED",
 }
 export interface FaceSwapActionState {
-    success: boolean;
-    message?: string;
-    data?: {
-        videoUrl?: string;
-        jobId?: string;
-    };
+  success: boolean;
+  message?: string;
+  data?: {
+    videoUrl?: string;
+    jobId?: string;
+  };
 }
 export interface StatusActionState {
-    success: boolean;
-    status?: JobStatus;
-    videoUrl?: string | null;
-    message?: string;
+  success: boolean;
+  status?: JobStatus;
+  videoUrl?: string | null;
+  message?: string;
 }
