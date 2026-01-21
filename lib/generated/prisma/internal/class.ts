@@ -1,0 +1,72 @@
+import * as runtime from "@prisma/client/runtime/client"
+import type * as Prisma from "./prismaNamespace"
+const config: runtime.GetPrismaClientConfig = {
+  "previewFeatures": [],
+  "clientVersion": "7.2.0",
+  "engineVersion": "0c8ef2ce45c83248ab3df073180d5eda9e8be7a3",
+  "activeProvider": "postgresql",
+  "inlineSchema": "// This is your Prisma schema file,\n// learn more about it in the docs: https://pris.ly/d/prisma-schema\n\n// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?\n// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init\n\ngenerator client {\n  provider = \"prisma-client\"\n  output   = \"../lib/generated/prisma\"\n}\n\ndatasource db {\n  provider = \"postgresql\"\n}\n\nmodel User {\n  id               String           @id\n  name             String\n  email            String\n  emailVerified    Boolean          @default(false)\n  image            String?\n  credits          Int              @default(10)\n  assets           Asset[]\n  generations      Generation[]\n  plan             SubscriptionPlan @default(FREE)\n  stripeCustomerId String?\n  createdAt        DateTime         @default(now())\n  updatedAt        DateTime         @updatedAt\n  sessions         Session[]\n  accounts         Account[]\n\n  @@unique([email])\n  @@map(\"user\")\n}\n\nmodel Session {\n  id        String   @id\n  expiresAt DateTime\n  token     String\n  createdAt DateTime @default(now())\n  updatedAt DateTime @updatedAt\n  ipAddress String?\n  userAgent String?\n  userId    String\n  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)\n\n  @@unique([token])\n  @@index([userId])\n  @@map(\"session\")\n}\n\nmodel Account {\n  id                    String    @id\n  accountId             String\n  providerId            String\n  userId                String\n  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)\n  accessToken           String?\n  refreshToken          String?\n  idToken               String?\n  accessTokenExpiresAt  DateTime?\n  refreshTokenExpiresAt DateTime?\n  scope                 String?\n  password              String?\n  createdAt             DateTime  @default(now())\n  updatedAt             DateTime  @updatedAt\n\n  @@index([userId])\n  @@map(\"account\")\n}\n\nmodel Verification {\n  id         String   @id\n  identifier String\n  value      String\n  expiresAt  DateTime\n  createdAt  DateTime @default(now())\n  updatedAt  DateTime @updatedAt\n\n  @@index([identifier])\n  @@map(\"verification\")\n}\n\nmodel Asset {\n  id     String @id @default(cuid())\n  userId String\n  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)\n\n  name         String    @default(\"Untitled Asset\")\n  url          String // S3/R2 URL\n  thumbnailUrl String? // Separate thumbnail URL for videos\n  type         AssetType // IMAGE (Face) or VIDEO (Source)\n\n  // File metadata\n  size     Int    @default(0) // File size in bytes\n  width    Int?\n  height   Int?\n  duration Float? // Video duration in seconds\n\n  createdAt DateTime @default(now())\n\n  generations Generation[] // Track which assets were used where\n\n  @@index([userId])\n}\n\nmodel Template {\n  id String @id @default(cuid())\n\n  thumbnailUrl String\n  videoUrl     String\n\n  // UX: Tags for filtering (e.g. \"Funny\", \"Movie Scene\")\n  tags     String[]\n  duration Float // In seconds (to estimate cost)\n\n  // Visibility control (e.g. disable a buggy template without deleting it)\n  isActive Boolean @default(true)\n\n  createdAt   DateTime     @default(now())\n  generations Generation[]\n}\n\nmodel Generation {\n  id     String @id @default(cuid())\n  userId String\n  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)\n\n  // Inputs\n  templateId String? // Optional: User might upload their OWN video eventually\n  template   Template? @relation(fields: [templateId], references: [id])\n\n  assetId String // The Face used\n  asset   Asset  @relation(fields: [assetId], references: [id])\n\n  // AI Status State Machine\n  status        JobStatus @default(QUEUED)\n  failureReason String? // Store error msg from Replicate if it fails\n\n  // Cost Tracking (Audit trail)\n  cost Int @default(1)\n\n  // Provider Metadata (Crucial for Webhooks)\n  providerJobId String? @unique // The ID returned by Replicate/Fal.ai\n  resultUrl     String? // The final video\n\n  createdAt DateTime @default(now())\n  updatedAt DateTime @updatedAt // Track how long generation took\n\n  @@index([userId])\n  @@index([providerJobId]) // Faster webhook lookups\n}\n\nenum SubscriptionPlan {\n  FREE\n  PRO\n}\n\nenum AssetType {\n  IMAGE\n  VIDEO\n}\n\nenum JobStatus {\n  QUEUED\n  COMPLETED\n  FAILED\n}\n",
+  "runtimeDataModel": {
+    "models": {},
+    "enums": {},
+    "types": {}
+  }
+}
+
+config.runtimeDataModel = JSON.parse("{\"models\":{\"User\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"name\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"email\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"emailVerified\",\"kind\":\"scalar\",\"type\":\"Boolean\"},{\"name\":\"image\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"credits\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"assets\",\"kind\":\"object\",\"type\":\"Asset\",\"relationName\":\"AssetToUser\"},{\"name\":\"generations\",\"kind\":\"object\",\"type\":\"Generation\",\"relationName\":\"GenerationToUser\"},{\"name\":\"plan\",\"kind\":\"enum\",\"type\":\"SubscriptionPlan\"},{\"name\":\"stripeCustomerId\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"createdAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"updatedAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"sessions\",\"kind\":\"object\",\"type\":\"Session\",\"relationName\":\"SessionToUser\"},{\"name\":\"accounts\",\"kind\":\"object\",\"type\":\"Account\",\"relationName\":\"AccountToUser\"}],\"dbName\":\"user\"},\"Session\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"expiresAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"token\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"createdAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"updatedAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"ipAddress\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"userAgent\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"userId\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"user\",\"kind\":\"object\",\"type\":\"User\",\"relationName\":\"SessionToUser\"}],\"dbName\":\"session\"},\"Account\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"accountId\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"providerId\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"userId\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"user\",\"kind\":\"object\",\"type\":\"User\",\"relationName\":\"AccountToUser\"},{\"name\":\"accessToken\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"refreshToken\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"idToken\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"accessTokenExpiresAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"refreshTokenExpiresAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"scope\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"password\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"createdAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"updatedAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"}],\"dbName\":\"account\"},\"Verification\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"identifier\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"value\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"expiresAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"createdAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"updatedAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"}],\"dbName\":\"verification\"},\"Asset\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"userId\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"user\",\"kind\":\"object\",\"type\":\"User\",\"relationName\":\"AssetToUser\"},{\"name\":\"name\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"url\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"thumbnailUrl\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"type\",\"kind\":\"enum\",\"type\":\"AssetType\"},{\"name\":\"size\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"width\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"height\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"duration\",\"kind\":\"scalar\",\"type\":\"Float\"},{\"name\":\"createdAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"generations\",\"kind\":\"object\",\"type\":\"Generation\",\"relationName\":\"AssetToGeneration\"}],\"dbName\":null},\"Template\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"thumbnailUrl\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"videoUrl\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"tags\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"duration\",\"kind\":\"scalar\",\"type\":\"Float\"},{\"name\":\"isActive\",\"kind\":\"scalar\",\"type\":\"Boolean\"},{\"name\":\"createdAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"generations\",\"kind\":\"object\",\"type\":\"Generation\",\"relationName\":\"GenerationToTemplate\"}],\"dbName\":null},\"Generation\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"userId\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"user\",\"kind\":\"object\",\"type\":\"User\",\"relationName\":\"GenerationToUser\"},{\"name\":\"templateId\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"template\",\"kind\":\"object\",\"type\":\"Template\",\"relationName\":\"GenerationToTemplate\"},{\"name\":\"assetId\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"asset\",\"kind\":\"object\",\"type\":\"Asset\",\"relationName\":\"AssetToGeneration\"},{\"name\":\"status\",\"kind\":\"enum\",\"type\":\"JobStatus\"},{\"name\":\"failureReason\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"cost\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"providerJobId\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"resultUrl\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"createdAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"updatedAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"}],\"dbName\":null}},\"enums\":{},\"types\":{}}")
+
+async function decodeBase64AsWasm(wasmBase64: string): Promise<WebAssembly.Module> {
+  const { Buffer } = await import('node:buffer')
+  const wasmArray = Buffer.from(wasmBase64, 'base64')
+
+  return new WebAssembly.Module(wasmArray)
+}
+
+config.compilerWasm = {
+  getRuntime: async () => await import("@prisma/client/runtime/query_compiler_bg.postgresql.mjs"),
+  getQueryCompilerWasmModule: async () => {
+    const { wasm } = await import("@prisma/client/runtime/query_compiler_bg.postgresql.wasm-base64.mjs")
+
+    return await decodeBase64AsWasm(wasm)
+  }
+}
+export type LogOptions<ClientOptions extends Prisma.PrismaClientOptions> =
+  'log' extends keyof ClientOptions ? ClientOptions['log'] extends Array<Prisma.LogLevel | Prisma.LogDefinition> ? Prisma.GetEvents<ClientOptions['log']> : never : never
+export interface PrismaClientConstructor {
+  new <
+    Options extends Prisma.PrismaClientOptions = Prisma.PrismaClientOptions,
+    LogOpts extends LogOptions<Options> = LogOptions<Options>,
+    OmitOpts extends Prisma.PrismaClientOptions['omit'] = Options extends { omit: infer U } ? U : Prisma.PrismaClientOptions['omit'],
+    ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs
+  >(options: Prisma.Subset<Options, Prisma.PrismaClientOptions> ): PrismaClient<LogOpts, OmitOpts, ExtArgs>
+}
+export interface PrismaClient<
+  in LogOpts extends Prisma.LogLevel = never,
+  in out OmitOpts extends Prisma.PrismaClientOptions['omit'] = undefined,
+  in out ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs
+> {
+  [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['other'] }
+  $on<V extends LogOpts>(eventType: V, callback: (event: V extends 'query' ? Prisma.QueryEvent : Prisma.LogEvent) => void): PrismaClient;
+  $connect(): runtime.Types.Utils.JsPromise<void>;
+  $disconnect(): runtime.Types.Utils.JsPromise<void>;
+  $executeRaw<T = unknown>(query: TemplateStringsArray | Prisma.Sql, ...values: any[]): Prisma.PrismaPromise<number>;
+  $executeRawUnsafe<T = unknown>(query: string, ...values: any[]): Prisma.PrismaPromise<number>;
+  $queryRaw<T = unknown>(query: TemplateStringsArray | Prisma.Sql, ...values: any[]): Prisma.PrismaPromise<T>;
+  $queryRawUnsafe<T = unknown>(query: string, ...values: any[]): Prisma.PrismaPromise<T>;
+  $transaction<P extends Prisma.PrismaPromise<any>[]>(arg: [...P], options?: { isolationLevel?: Prisma.TransactionIsolationLevel }): runtime.Types.Utils.JsPromise<runtime.Types.Utils.UnwrapTuple<P>>
+  $transaction<R>(fn: (prisma: Omit<PrismaClient, runtime.ITXClientDenyList>) => runtime.Types.Utils.JsPromise<R>, options?: { maxWait?: number, timeout?: number, isolationLevel?: Prisma.TransactionIsolationLevel }): runtime.Types.Utils.JsPromise<R>
+  $extends: runtime.Types.Extensions.ExtendsHook<"extends", Prisma.TypeMapCb<OmitOpts>, ExtArgs, runtime.Types.Utils.Call<Prisma.TypeMapCb<OmitOpts>, {
+    extArgs: ExtArgs
+  }>>
+  get user(): Prisma.UserDelegate<ExtArgs, { omit: OmitOpts }>;
+  get session(): Prisma.SessionDelegate<ExtArgs, { omit: OmitOpts }>;
+  get account(): Prisma.AccountDelegate<ExtArgs, { omit: OmitOpts }>;
+  get verification(): Prisma.VerificationDelegate<ExtArgs, { omit: OmitOpts }>;
+  get asset(): Prisma.AssetDelegate<ExtArgs, { omit: OmitOpts }>;
+  get template(): Prisma.TemplateDelegate<ExtArgs, { omit: OmitOpts }>;
+  get generation(): Prisma.GenerationDelegate<ExtArgs, { omit: OmitOpts }>;
+}
+
+export function getPrismaClientClass(): PrismaClientConstructor {
+  return runtime.getPrismaClient(config) as unknown as PrismaClientConstructor
+}
