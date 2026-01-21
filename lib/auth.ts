@@ -7,9 +7,16 @@ export const auth = betterAuth({
   }),
   emailAndPassword: {
     enabled: true,
+    async sendResetPassword({ url, user }: { url: string, user: { email: string } }) {
+      console.log("-----------------------------------------");
+      console.log("🔐 Password Reset Request");
+      console.log(`User: ${user.email}`);
+      console.log(`Link: ${url}`);
+      console.log("-----------------------------------------");
+    },
   },
   logger: {
-    level: 'info'
+    level: 'debug'
   },
-  baseURL: process.env.BETTER_AUTH_BASE_URL,
+  baseURL: process.env.BETTER_AUTH_BASE_URL || 'http://localhost:3000',
 })

@@ -1,18 +1,14 @@
 "use client";
-import { DashboardTabs } from "@/components/dashboard/dashboard-tabs";
 import { GenerationsGrid } from "@/components/generations-grid";
-import { TemplateGrid } from "@/components/template-grid";
 import { Button } from "@/components/ui/button";
-import { useDashboardStore } from "@/lib/stores/dashboard-store";
 import { Plus } from "lucide-react";
 import Link from "next/link";
 import { dashboardContent } from "@/lib/content/dashboard";
 export default function DashboardPage() {
-    const { activeTab } = useDashboardStore();
     return (
         <div className="flex flex-col gap-6">
             <div className="flex items-center justify-between flex-wrap gap-4">
-                <DashboardTabs />
+                <h2 className="text-xl font-semibold tracking-tight">{dashboardContent.tabs.generations}</h2>
                 <Link href="/editor">
                     <Button
                         variant="ghost"
@@ -24,15 +20,9 @@ export default function DashboardPage() {
                 </Link>
             </div>
             <div className="min-h-[400px]">
-                {activeTab === 'templates' ? (
-                    <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
-                         <TemplateGrid />
-                    </div>
-                ) : (
-                    <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
-                        <GenerationsGrid />
-                    </div>
-                )}
+                <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
+                    <GenerationsGrid />
+                </div>
             </div>
         </div>
     )
