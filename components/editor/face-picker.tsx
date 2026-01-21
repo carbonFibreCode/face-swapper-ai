@@ -1,6 +1,6 @@
 import { cn } from "@/lib/utils";
 import { Upload } from "lucide-react";
-import { use, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import { getUserAssets, saveAssetToDb } from "@/app/actions/assets";
 import { toast } from "sonner";
@@ -24,7 +24,8 @@ export function FacePicker({ onSelect, selectedFaceId }: FacePickerProps) {
       .then((fetchedAssets) => {
         setAssets(fetchedAssets || []);
       })
-      .catch((err) => console.error("Failed to load assets:", err));
+      .catch(() => {}); // Suppress error log
+      // .catch((err) => console.error("Failed to load assets:", err));
   }, []);
 
   const handleDragOver = (e: React.DragEvent) => {
@@ -81,13 +82,15 @@ export function FacePicker({ onSelect, selectedFaceId }: FacePickerProps) {
         headers: { "Content-Type": file.type },
       });
 
+      /*
       console.log("Upload response status:", uploadRes.status);
       console.log("Upload response headers:", Object.fromEntries(uploadRes.headers));
+      */
 
       if (!uploadRes.ok) {
         const errorText = await uploadRes.text();
 
-        console.error("Upload error body:", errorText);
+        // console.error("Upload error body:", errorText);
         throw new Error(`Upload to storage failed: ${uploadRes.status} - ${errorText}`);
       }
 
@@ -97,8 +100,8 @@ export function FacePicker({ onSelect, selectedFaceId }: FacePickerProps) {
       setSelectedId(newAsset.id);
       onSelect(newAsset.id);
       toast.success("Face uploaded successfully!");
-    } catch (error) {
-      console.error(error);
+    } catch {
+     // console.error(error);
       toast.error("Upload failed. Please try again.");
     } finally {
       setIsUploading(false);

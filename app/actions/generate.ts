@@ -6,6 +6,7 @@ import { prisma } from "@/lib/prisma";
 import { faceSwapService } from "@/lib/services/face-swap-service/face-swap-service";
 import { revalidatePath } from "next/cache";
 import { getPresignedGetUrl } from "@/lib/s3";
+import { logger } from "@/lib/logger";
 
 export async function startGeneration(templateId: string, assetId: string) {
   const session = await auth.api.getSession({
@@ -47,7 +48,7 @@ export async function startGeneration(templateId: string, assetId: string) {
       const key = path.startsWith("/") ? path.substring(1) : path;
 
       if (key) {
-        console.log(`[Generate] Generating fresh presigned URL for key: ${key}`);
+        // console.log(`[Generate] Generating fresh presigned URL for key: ${key}`);
         const freshUrl = await getPresignedGetUrl(key);
 
         if (freshUrl) {
@@ -55,10 +56,10 @@ export async function startGeneration(templateId: string, assetId: string) {
         }
       }
     } catch (e) {
-      console.warn("[Generate] Failed to generate presigned URL, using original:", e);
+      logger.warn("[Generate] Failed to generate presigned URL, using original:", { error: e });
     }
 
-    console.log(`[Generate] Starting generation. Template Duration: ${template.duration}`);
+    // console.log(`[Generate] Starting generation. Template Duration: ${template.duration}`);
     const result = await faceSwapService.swapFace({
       targetVideoUrl: template.videoUrl,
       swapImageUrl: assetUrl,
@@ -88,7 +89,7 @@ export async function startGeneration(templateId: string, assetId: string) {
 
     return { success: true, generationId: generation.id };
   } catch (error) {
-    console.error("Start Generation Error:", error);
+    logger.error("Start Generation Error:", { error });
 
     return { error: "Internal Server Error" };
   }
@@ -155,7 +156,7 @@ export async function checkGenerationStatus(generationId: string) {
       resultUrl: generation.resultUrl,
     };
   } catch (error) {
-    console.error("Check Status Error:", error);
+    logger.error("Check Status Error:", { error });
 
     return { error: "Failed to check status" };
   }

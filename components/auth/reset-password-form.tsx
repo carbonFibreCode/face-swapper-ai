@@ -66,7 +66,7 @@ export function ResetPasswordForm() {
   };
 
   return (
-    <Card className="w-[350px] mx-auto">
+    <Card className="w-[350px] mx-auto glass-card">
       <CardHeader>
         <CardTitle>Reset Password</CardTitle>
         <CardDescription>Enter your new password below</CardDescription>

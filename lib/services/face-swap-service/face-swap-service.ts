@@ -1,5 +1,6 @@
 import { FaceSwapInput } from "./types";
 import Client from "magic-hour";
+import { logger } from "@/lib/logger";
 export interface FaceSwapResult {
   jobId?: string;
   videoUrl?: string;
@@ -18,7 +19,7 @@ let client: Client;
 if (MAGIC_HOUR_API_KEY) {
   client = new Client({ token: MAGIC_HOUR_API_KEY });
 } else {
-  console.error("MAGICHOUR_API_KEY is missing from environment variables");
+  logger.error("MAGICHOUR_API_KEY is missing from environment variables");
 }
 
 export class MagicHourFaceSwapProvider implements FaceSwapProvider {
@@ -28,13 +29,9 @@ export class MagicHourFaceSwapProvider implements FaceSwapProvider {
     }
 
     try {
-      console.log("--- Magic Hour Face Swap Flow (SDK) ---");
-      console.log("Input:", {
-        video: input.targetVideoUrl,
-        image: input.swapImageUrl,
-        duration: input.videoDuration,
-      });
-      console.log("Calling Magic Hour SDK create...");
+      /*
+      logger.info("Calling Magic Hour SDK create...");
+      */
       const response = await client.v1.faceSwap.create({
         assets: {
           videoSource: "file",
@@ -47,7 +44,9 @@ export class MagicHourFaceSwapProvider implements FaceSwapProvider {
         name: "Face Swap Video",
       });
 
-      console.log("Magic Hour Response:", JSON.stringify(response, null, 2));
+      /*
+      logger.info("Magic Hour Response: " + JSON.stringify(response));
+      */
 
       return {
         status: "QUEUED",
@@ -55,7 +54,7 @@ export class MagicHourFaceSwapProvider implements FaceSwapProvider {
         providerMetadata: response as Record<string, unknown>,
       };
     } catch (error: unknown) {
-      console.error("Magic Hour Error:", error);
+      logger.error("Magic Hour Error:", { error });
 
       interface MagicHourError {
         message?: string;
@@ -72,14 +71,14 @@ export class MagicHourFaceSwapProvider implements FaceSwapProvider {
         if (err.response?.json) {
           const errorBody = (await err.response.json()) as { message?: string };
 
-          console.error("Magic Hour API Error Detail:", JSON.stringify(errorBody, null, 2));
+          logger.error("Magic Hour API Error Detail:", { errorBody });
           errorMessage = errorBody.message || JSON.stringify(errorBody);
         } else if (err.response?.data) {
-          console.error("Magic Hour API Error Detail (data):", err.response.data);
+          logger.error("Magic Hour API Error Detail (data):", { data: err.response.data });
           errorMessage = err.response.data.message || JSON.stringify(err.response.data);
         }
       } catch (e) {
-        console.error("Failed to parse error response:", e);
+        logger.error("Failed to parse error response:", { error: e });
       }
 
       return { status: "FAILED", error: errorMessage };
@@ -93,7 +92,7 @@ export class MagicHourFaceSwapProvider implements FaceSwapProvider {
     try {
       const project = await client.v1.videoProjects.get({ id: jobId });
 
-      console.log(`[Magic Hour] Status: ${project.status}`);
+      // logger.info(`[Magic Hour] Status: ${project.status}`);
       let status: FaceSwapResultStatus = "PENDING";
 
       if (project.status === "complete") status = "COMPLETED";
@@ -114,7 +113,7 @@ export class MagicHourFaceSwapProvider implements FaceSwapProvider {
         providerMetadata: project as Record<string, unknown>,
       };
     } catch (error: unknown) {
-      console.error("[Magic Hour] Status Error:", error);
+      logger.error("[Magic Hour] Status Error:", { error });
       const errorMessage = error instanceof Error ? error.message : "Unknown polling error";
 
       return { status: "FAILED", error: errorMessage };

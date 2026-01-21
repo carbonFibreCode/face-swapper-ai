@@ -65,7 +65,7 @@ export function AuthForm() {
   };
 
   return (
-    <Card className="w-[350px] mx-auto">
+    <Card className="w-[350px] mx-auto glass-card">
       <CardHeader>
         <CardTitle>{isSignIn ? "Sign In" : "Create Account"}</CardTitle>
         <CardDescription>

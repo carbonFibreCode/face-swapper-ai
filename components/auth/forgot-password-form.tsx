@@ -45,7 +45,7 @@ export function ForgotPasswordForm() {
 
   if (isSubmitted) {
     return (
-      <Card className="w-[350px] mx-auto">
+      <Card className="w-[350px] mx-auto glass-card">
         <CardHeader>
           <CardTitle>Check your email</CardTitle>
           <CardDescription>
@@ -65,7 +65,7 @@ export function ForgotPasswordForm() {
   }
 
   return (
-    <Card className="w-[350px] mx-auto">
+    <Card className="w-[350px] mx-auto glass-card">
       <CardHeader>
         <CardTitle>Forgot Password</CardTitle>
         <CardDescription>Enter your email to receive a reset link</CardDescription>

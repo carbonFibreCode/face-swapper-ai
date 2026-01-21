@@ -3,6 +3,7 @@
 import { prisma } from "@/lib/prisma";
 import { faceSwapService } from "@/lib/services/face-swap-service/face-swap-service";
 import { JobStatus, StatusActionState } from "@/lib/types";
+import { logger } from "@/lib/logger";
 
 export async function checkJobStatus(generationId: string): Promise<StatusActionState> {
   try {
@@ -18,10 +19,12 @@ export async function checkJobStatus(generationId: string): Promise<StatusAction
     }
 
     if (generation.status !== JobStatus.QUEUED) {
+      /*
       console.log("Job status check [Immediate]:", {
         status: generation.status,
         videoUrl: generation.resultUrl,
       });
+      */
 
       return {
         success: true,
@@ -33,7 +36,7 @@ export async function checkJobStatus(generationId: string): Promise<StatusAction
     if (generation.providerJobId) {
       const result = await faceSwapService.getJobStatus(generation.providerJobId);
 
-      console.log("Job status check [Service Update]:", result);
+      // console.log("Job status check [Service Update]:", result);
 
       if (result.status === "COMPLETED" && result.videoUrl) {
         const updated = await prisma.generation.update({
@@ -73,7 +76,7 @@ export async function checkJobStatus(generationId: string): Promise<StatusAction
       status: generation.status as JobStatus,
     };
   } catch (error: unknown) {
-    console.error("Check Status Error:", error);
+    logger.error("Check Status Error:", { error });
     const message = error instanceof Error ? error.message : "Unknown error";
 
     return {
