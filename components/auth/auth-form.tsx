@@ -1,5 +1,4 @@
 "use client"
-
 import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -9,26 +8,22 @@ import { authClient } from "@/lib/auth-client"
 import { useRouter } from "next/navigation"
 import { toast } from "sonner"
 import { Loader2 } from "lucide-react"
-
 export function AuthForm() {
   const [isSignIn, setIsSignIn] = useState(true)
   const [isLoading, setIsLoading] = useState(false)
   const router = useRouter()
-
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
-  const [name, setName] = useState("") // Only for Sign Up
-
+  const [name, setName] = useState("")  
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setIsLoading(true)
-
     try {
       if (isSignIn) {
         const { error } = await authClient.signIn.email({
           email,
           password,
-          callbackURL: "/dashboard" // Redirect after login
+          callbackURL: "/dashboard"  
         })
         if (error) throw error
         router.push("/dashboard")
@@ -37,7 +32,7 @@ export function AuthForm() {
           email,
           password,
           name,
-          callbackURL: "/dashboard" // Redirect after signup
+          callbackURL: "/dashboard"  
         })
         if (error) throw error
         toast.success("Account created!")
@@ -49,7 +44,6 @@ export function AuthForm() {
       setIsLoading(false)
     }
   }
-
   return (
     <Card className="w-[350px] mx-auto">
       <CardHeader>
@@ -74,7 +68,6 @@ export function AuthForm() {
               />
             </div>
           )}
-          
           <div className="space-y-2">
             <Label htmlFor="email">Email</Label>
             <Input 
@@ -86,7 +79,6 @@ export function AuthForm() {
               required 
             />
           </div>
-          
           <div className="space-y-2">
             <Label htmlFor="password">Password</Label>
             <Input 
@@ -103,7 +95,6 @@ export function AuthForm() {
             {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
             {isSignIn ? "Sign In" : "Sign Up"}
           </Button>
-          
           <Button 
             variant="link" 
             className="text-sm text-muted-foreground"

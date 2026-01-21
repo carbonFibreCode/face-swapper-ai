@@ -4,40 +4,32 @@ import { use, useEffect, useState } from "react"
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area"
 import { getUserAssets, saveAssetToDb } from "@/app/actions/assets"
 import { toast } from "sonner"
-
 interface FacePickerProps {
   onSelect: (file: File | string) => void
   selectedFaceId?: string
 }
-
 type Asset = {
   id: string
   url: string
 }
-
 export function FacePicker({ onSelect, selectedFaceId }: FacePickerProps) {
   const [isDragging, setIsDragging] = useState(false)
   const [selectedId, setSelectedId] = useState<string | null>(selectedFaceId || null)
   const [assets, setAssets] = useState<Asset[]>([])
   const [isUploading, setIsUploading] = useState(false)
-
-  // loading the assets on load
   useEffect(() => {
     getUserAssets().then((fetchedAssets) => {
       setAssets(fetchedAssets || [])
     }).catch((err) => console.error("Failed to load assets:", err))
   }, [])
-
   const handleDragOver = (e: React.DragEvent) => {
     e.preventDefault()
     setIsDragging(true)
   }
-
   const handleLeave = (e: React.DragEvent) => {
     e.preventDefault()
     setIsDragging(false)
   }
-
   const handleDrop = (e: React.DragEvent) => {
     e.preventDefault()
     setIsDragging(false)
@@ -46,17 +38,13 @@ export function FacePicker({ onSelect, selectedFaceId }: FacePickerProps) {
       handleUpload(file)
     }
   }
-
   const handleAssetClick = (asset: { id: string; url: string }) => {
     setSelectedId(asset.id)
     onSelect(asset.id)
   }
-
   const handleUpload = async (file: File) => {
     try {
       setIsUploading(true)
-
-      // getting the signed url from the api
       const res = await fetch('/api/upload/signed-url', {
         method: 'POST',
         body: JSON.stringify({
@@ -64,42 +52,31 @@ export function FacePicker({ onSelect, selectedFaceId }: FacePickerProps) {
           fileSize: file.size,
         })
       })
-
       if (!res.ok) {
         const error = await res.json()
         throw new Error(error.error || "Failed to get upload URL")
       }
-
       const { signedUrl, publicUrl } = await res.json()
-
       if (!publicUrl) {
         throw new Error("API did not return a public URL. Check route.ts")
       }
-
-      // uploading the file to the signed url
       const uploadRes = await fetch(signedUrl, {
         method: 'PUT',
         body: file,
         headers: { "Content-Type": file.type }
       })
-
       console.log('Upload response status:', uploadRes.status)
       console.log('Upload response headers:', Object.fromEntries(uploadRes.headers))
-
       if (!uploadRes.ok) {
         const errorText = await uploadRes.text()
         console.error('Upload error body:', errorText)
         throw new Error(`Upload to storage failed: ${uploadRes.status} - ${errorText}`)
       }
-
-      // Saving the public Url to the database
       const newAsset = await saveAssetToDb(publicUrl)
-
       setAssets([newAsset, ...assets])
       setSelectedId(newAsset.id)
       onSelect(newAsset.id)
       toast.success("Face uploaded successfully!")
-
     } catch (error) {
       console.error(error)
       toast.error("Upload failed. Please try again.")
@@ -107,11 +84,9 @@ export function FacePicker({ onSelect, selectedFaceId }: FacePickerProps) {
       setIsUploading(false)
     }
   }
-
   return (
     <div className="flex flex-col h-full overflow-hidden">
       <h3 className="font-semibold mb-3">Select Face</h3>
-
       <label
         htmlFor="face-upload"
         onDragOver={handleDragOver}
@@ -122,7 +97,6 @@ export function FacePicker({ onSelect, selectedFaceId }: FacePickerProps) {
           "flex flex-col items-center justify-center gap-3",
           "hover:border-primary hover:bg-primary/5",
           isDragging ? "border-primary bg-primary/10 scale-[0.98]" : "border-muted-foreground/25",
-
           isUploading && "opacity-50 cursor-wait"
         )}
       >
@@ -139,7 +113,6 @@ export function FacePicker({ onSelect, selectedFaceId }: FacePickerProps) {
           disabled={isUploading}
         />
       </label>
-
       <div className="space-y-2 mt-4 flex-shrink-0">
         <h4 className="font-medium text-sm text-muted-foreground">Recently Used</h4>
         <ScrollArea className="w-full">

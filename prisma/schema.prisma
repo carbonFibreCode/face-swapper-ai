@@ -86,12 +86,16 @@ model Asset {
   userId      String
   user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   
+  name        String   @default("Untitled Asset")
   url         String   // S3/R2 URL
+  thumbnailUrl String? // Separate thumbnail URL for videos
   type        AssetType // IMAGE (Face) or VIDEO (Source)
   
-  // Clean UI Metadata: Show aspect ratio/size in library without loading the file
+  // File metadata
+  size        Int      @default(0) // File size in bytes
   width       Int?
   height      Int?
+  duration    Float?   // Video duration in seconds
   
   createdAt   DateTime @default(now())
   

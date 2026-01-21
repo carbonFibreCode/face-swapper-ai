@@ -1,36 +1,28 @@
 "use client"
-
 import { Loader2 } from "lucide-react"
 import { useEffect, useRef } from "react"
-
 interface VideoPreviewProps {
   templateUrl: string
   resultUrl?: string | null
   isProcessing?: boolean
 }
-
 export function VideoPreview({ templateUrl, resultUrl, isProcessing }: VideoPreviewProps) {
   const activeUrl = resultUrl || templateUrl
   const isResult = !!resultUrl
-
   const mainVideoRef = useRef<HTMLVideoElement>(null)
   const bgVideoRef = useRef<HTMLVideoElement>(null)
-
   useEffect(() => {
     const main = mainVideoRef.current
     const bg = bgVideoRef.current
     if (!main || !bg) return
-
     const onPlay = () => bg.play().catch(() => {})
     const onPause = () => bg.pause()
     const onSeek = () => { bg.currentTime = main.currentTime }
-
     bg.muted = true
     main.addEventListener('play', onPlay)
     main.addEventListener('pause', onPause)
     main.addEventListener('seeking', onSeek)
     main.addEventListener('seeked', onSeek)
-
     return () => {
       main.removeEventListener('play', onPlay)
       main.removeEventListener('pause', onPause)
@@ -38,10 +30,8 @@ export function VideoPreview({ templateUrl, resultUrl, isProcessing }: VideoPrev
       main.removeEventListener('seeked', onSeek)
     }
   }, [activeUrl])
-
   return (
     <div className="relative w-full h-full flex items-center justify-center bg-black overflow-hidden">
-
       <video
         ref={bgVideoRef}
         key={`bg-${activeUrl}`}
@@ -51,9 +41,7 @@ export function VideoPreview({ templateUrl, resultUrl, isProcessing }: VideoPrev
         muted
         playsInline
       />
-
       <div className="absolute inset-0 bg-black/40" />
-
       {isProcessing && (
         <div className="absolute inset-0 flex items-center justify-center bg-black/60 backdrop-blur-sm z-20">
           <div className="text-center space-y-4">
@@ -65,7 +53,6 @@ export function VideoPreview({ templateUrl, resultUrl, isProcessing }: VideoPrev
           </div>
         </div>
       )}
-
       <div className="relative z-10 w-full h-full flex items-center justify-center p-6">
         <video
           ref={mainVideoRef}
@@ -77,7 +64,6 @@ export function VideoPreview({ templateUrl, resultUrl, isProcessing }: VideoPrev
           playsInline
         />
       </div>
-
       <div className="absolute top-4 right-4 z-30">
         <div className="px-3 py-1.5 rounded-full text-xs font-medium bg-black/60 backdrop-blur-sm text-white border border-white/20">
           {isResult ? "✨ AI Generated Result" : "📹 Preview Template"}

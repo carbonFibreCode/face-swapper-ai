@@ -1,5 +1,4 @@
 "use client"
-
 import {
     LayoutDashboard,
     Video,
@@ -7,7 +6,6 @@ import {
     Settings,
     CreditCard,
     LogOut,
-    Layout
 } from "lucide-react"
 import {
     Sidebar,
@@ -21,11 +19,12 @@ import {
     SidebarMenuButton,
     SidebarMenuItem,
     SidebarRail,
+    SidebarSeparator,
 } from "@/components/ui/sidebar"
+import { ThemeToggle } from "@/components/theme-toggle"
 import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
 import { signOut } from "@/lib/auth-client"
-
 const items = [
     {
         title: "Dashboard",
@@ -34,7 +33,7 @@ const items = [
     },
     {
         title: "Create Video",
-        url: "/videos/create",
+        url: "/editor",
         icon: Video
     },
     {
@@ -53,27 +52,25 @@ const items = [
         icon: Settings
     }
 ]
-
 export function AppSidebar() {
     const pathname = usePathname()
     const router = useRouter()
-
     const handleSignOut = async () => {
         await signOut()
         router.push('/login')
     }
-
     return (
-        <Sidebar collapsible="icon">
+        <Sidebar variant="floating" collapsible="icon">
             <SidebarHeader>
-                <div className="flex items-center gap-2 px-2 py-2">
-                    <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary text-primary-foreground font-bold">
+                <div className="flex items-center gap-2 px-1 py-1">
+                    <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-primary text-primary-foreground font-bold text-sm">
                         FS
                     </div>
-                    <span className="truncate font-semibold">FaceSwapper.ai</span>
+                    <span className="truncate font-semibold text-sm group-data-[collapsible=icon]:hidden">
+                        FaceSwapper.ai
+                    </span>
                 </div>
             </SidebarHeader>
-
             <SidebarContent>
                 <SidebarGroup>
                     <SidebarGroupLabel>Application</SidebarGroupLabel>
@@ -97,11 +94,16 @@ export function AppSidebar() {
                     </SidebarGroupContent>
                 </SidebarGroup>
             </SidebarContent>
-
             <SidebarFooter>
+                { }
+                <div className="px-2 pb-2 group-data-[collapsible=icon]:hidden">
+                    <p className="text-xs text-muted-foreground mb-2 px-1">Theme</p>
+                    <ThemeToggle />
+                </div>
+                <SidebarSeparator className="group-data-[collapsible=icon]:hidden" />
                 <SidebarMenu>
                     <SidebarMenuItem>
-                        <SidebarMenuButton 
+                        <SidebarMenuButton
                             onClick={handleSignOut}
                             className="text-red-500 hover:text-red-600"
                         >
