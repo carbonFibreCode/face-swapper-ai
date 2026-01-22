@@ -1,44 +1,12 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { getBillingInfo } from "@/app/actions/billing-actions";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Coins, CreditCard, TrendingUp, Sparkles, Clock, AlertCircle, Loader2 } from "lucide-react";
-import type {
-  BillingDTO,
-  CreditPackage,
-  RecentTransactionDTO,
-} from "@/lib/services/billing-service";
+import { useBillingInfo } from "@/hooks/billing/use-billing-info";
 
 export function BillingDashboard() {
-  const [billing, setBilling] = useState<BillingDTO | null>(null);
-  const [packages, setPackages] = useState<CreditPackage[]>([]);
-  const [transactions, setTransactions] = useState<RecentTransactionDTO[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    async function loadBilling() {
-      try {
-        const result = await getBillingInfo();
-
-        if (result.success) {
-          setBilling(result.data.billing);
-          setPackages(result.data.packages);
-          setTransactions(result.data.recentTransactions);
-        } else {
-          setError(result.error);
-        }
-      } catch {
-        setError("Failed to load billing information");
-      } finally {
-        setLoading(false);
-      }
-    }
-
-    loadBilling();
-  }, []);
+  const { billing, packages, transactions, loading, error } = useBillingInfo();
 
   if (loading) {
     return (

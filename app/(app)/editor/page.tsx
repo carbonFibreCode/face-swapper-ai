@@ -1,34 +1,26 @@
 "use client";
 
-import React, { useEffect, useRef, useTransition } from "react";
+import { Suspense, useRef, useTransition, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Loader2, Sparkles, Download } from "lucide-react";
 import { toast } from "sonner";
 import { getUploadUrl } from "@/app/actions/upload-actions";
 import { generateFaceSwap } from "@/app/actions/face-swap";
-import { checkJobStatus } from "@/app/actions/check-status";
 import { JobStatus } from "@/lib/types";
 import { MediaBoxGrid, VideoUploadBox, FaceUploadBox } from "@/components/editor/media-upload-box";
 import { useEditorStore, UploadedFileInfo } from "@/lib/stores/editor-store";
 import { editorContent } from "@/lib/content/editor";
 import { commonContent } from "@/lib/content/common";
-import { useRouter, useSearchParams, usePathname } from "next/navigation";
-import { getAsset } from "@/app/actions/asset-actions";
-import { Asset } from "@/lib/types/assets";
-
-import { Suspense } from "react";
+import { useEditorSync } from "@/hooks/editor/use-editor-sync";
+import { useJobPolling } from "@/hooks/editor/use-job-polling";
 
 function EditorContent() {
-  const router = useRouter();
-  const searchParams = useSearchParams();
-  const pathname = usePathname();
   const {
     selectedVideo,
     selectedImage,
     uploadedVideo,
     uploadedImage,
     jobId,
-    status,
     resultVideoUrl,
     setUploadedVideo,
     setUploadedImage,
@@ -36,138 +28,17 @@ function EditorContent() {
     setStatus,
     setResultVideoUrl,
     resetAll,
-    setSelectedVideo,
-    setSelectedImage,
   } = useEditorStore();
+
   const videoFileRef = useRef<File | null>(null);
   const imageFileRef = useRef<File | null>(null);
-  const pollingInterval = useRef<NodeJS.Timeout | null>(null);
   const [isPending, startTransition] = useTransition();
-  const [isUploading, setIsUploading] = React.useState(false);
-  const [isLoadingAssets, setIsLoadingAssets] = React.useState(true);
+  const [isUploading, setIsUploading] = useState(false);
+  
+  // Custom hooks for logic separation
+  const { isLoadingAssets } = useEditorSync();
 
-  useEffect(() => {
-    const fetchAssets = async () => {
-      const videoId = searchParams.get("video");
-      const imageId = searchParams.get("image");
-
-      if (videoId && (!selectedVideo || selectedVideo.id !== videoId) && !uploadedVideo) {
-        try {
-          const res = await getAsset(videoId);
-
-          if (res.success) {
-            const asset: Asset = {
-              ...res.data,
-              createdAt: new Date(res.data.createdAt),
-            };
-
-            setSelectedVideo(asset);
-          }
-        } catch (e) {
-          console.error("Failed to fetch video asset", e);
-        }
-      }
-
-      if (imageId && (!selectedImage || selectedImage.id !== imageId) && !uploadedImage) {
-        try {
-          const res = await getAsset(imageId);
-
-          if (res.success) {
-            const asset: Asset = {
-              ...res.data,
-              createdAt: new Date(res.data.createdAt),
-            };
-
-            setSelectedImage(asset);
-          }
-        } catch (e) {
-          console.error("Failed to fetch image asset", e);
-        }
-      }
-
-      setIsLoadingAssets(false);
-    };
-
-    fetchAssets();
-  }, [
-    searchParams,
-    selectedVideo,
-    selectedImage,
-    uploadedVideo,
-    uploadedImage,
-    setSelectedVideo,
-    setSelectedImage,
-  ]);
-  useEffect(() => {
-    if (isLoadingAssets) return;
-    const params = new URLSearchParams(searchParams.toString());
-    let changed = false;
-
-    if (selectedVideo) {
-      if (params.get("video") !== selectedVideo.id) {
-        params.set("video", selectedVideo.id);
-        changed = true;
-      }
-    } else if (params.has("video")) {
-      if (!uploadedVideo) {
-        params.delete("video");
-        changed = true;
-      }
-    }
-
-    if (selectedImage) {
-      if (params.get("image") !== selectedImage.id) {
-        params.set("image", selectedImage.id);
-        changed = true;
-      }
-    } else if (params.has("image")) {
-      if (!uploadedImage) {
-        params.delete("image");
-        changed = true;
-      }
-    }
-
-    if (changed) {
-      router.replace(`${pathname}?${params.toString()}`);
-    }
-  }, [
-    selectedVideo,
-    selectedImage,
-    uploadedVideo,
-    uploadedImage,
-    isLoadingAssets,
-    pathname,
-    router,
-    searchParams,
-  ]);
-  useEffect(() => {
-    if (jobId && !resultVideoUrl && status !== JobStatus.FAILED) {
-      pollingInterval.current = setInterval(async () => {
-        const result = await checkJobStatus(jobId);
-
-        if (result.success) {
-          if (result.status === JobStatus.COMPLETED && result.videoUrl) {
-            setResultVideoUrl(result.videoUrl);
-            setStatus(JobStatus.COMPLETED);
-            setJobId(null);
-            toast.success(editorContent.status.completed);
-            if (pollingInterval.current) clearInterval(pollingInterval.current);
-          } else if (result.status === JobStatus.FAILED) {
-            setStatus(JobStatus.FAILED);
-            toast.error(result.message || editorContent.status.failed);
-            setJobId(null);
-            if (pollingInterval.current) clearInterval(pollingInterval.current);
-          } else {
-            setStatus(result.status || JobStatus.QUEUED);
-          }
-        }
-      }, 3000);
-    }
-
-    return () => {
-      if (pollingInterval.current) clearInterval(pollingInterval.current);
-    };
-  }, [jobId, resultVideoUrl, status, setResultVideoUrl, setStatus, setJobId]);
+  useJobPolling();
 
   const handleVideoFileSelect = (file: File | null) => {
     videoFileRef.current = file;
@@ -332,6 +203,14 @@ function EditorContent() {
   const hasActiveVideo = !!uploadedVideo || !!selectedVideo;
   const hasActiveImage = !!uploadedImage || !!selectedImage;
   const canGenerate = hasActiveVideo && hasActiveImage && !isProcessing && !resultVideoUrl;
+  
+  if (isLoadingAssets) {
+     return (
+        <div className="flex items-center justify-center min-h-[calc(100vh-4rem)]">
+          <Loader2 className="h-8 w-8 animate-spin" />
+        </div>
+     );
+  }
 
   return (
     <div className="min-h-[calc(100vh-4rem)] bg-background p-4 md:p-8 flex flex-col">
