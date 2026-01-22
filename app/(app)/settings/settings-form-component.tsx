@@ -142,9 +142,9 @@ export function SettingsForm({ initialSettings }: SettingsFormProps) {
             <div className="flex items-center gap-4">
               <AnimatedTabs
                 items={[
-                  { value: "light", label: "Light", icon: <Sun className="h-4 w-4" /> },
-                  { value: "dark", label: "Dark", icon: <Moon className="h-4 w-4" /> },
-                  { value: "system", label: "System", icon: <Monitor className="h-4 w-4" /> },
+                  { value: "light", label: <span className="hidden sm:inline">Light</span>, icon: <Sun className="h-4 w-4" /> },
+                  { value: "dark", label: <span className="hidden sm:inline">Dark</span>, icon: <Moon className="h-4 w-4" /> },
+                  { value: "system", label: <span className="hidden sm:inline">System</span>, icon: <Monitor className="h-4 w-4" /> },
                 ]}
                 value={theme || "system"}
                 onChange={(val) => setTheme(val)}
