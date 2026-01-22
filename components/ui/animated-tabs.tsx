@@ -86,7 +86,7 @@ export function AnimatedTabs({
               )}
             >
               {item.icon && <span className="h-4 w-4">{item.icon}</span>}
-              <span>{item.label}</span>
+              {item.label}
             </button>
           );
         })}

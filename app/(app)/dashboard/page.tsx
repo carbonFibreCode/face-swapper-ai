@@ -1,6 +1,6 @@
 "use client";
 
-import { GenerationsGrid } from "@/components/generations-grid";
+import { GenerationsGrid } from "@/components/dashboard/generations-grid";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
 import Link from "next/link";
