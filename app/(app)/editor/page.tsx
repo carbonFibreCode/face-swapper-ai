@@ -16,7 +16,9 @@ import { useRouter, useSearchParams, usePathname } from "next/navigation";
 import { getAsset } from "@/app/actions/asset-actions";
 import { Asset } from "@/lib/types/assets";
 
-export default function EditorPage() {
+import { Suspense } from "react";
+
+function EditorContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const pathname = usePathname();
@@ -433,5 +435,19 @@ export default function EditorPage() {
         )}
       </div>
     </div>
+  );
+}
+
+export default function EditorPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="flex items-center justify-center min-h-screen">
+          <Loader2 className="h-8 w-8 animate-spin" />
+        </div>
+      }
+    >
+      <EditorContent />
+    </Suspense>
   );
 }
