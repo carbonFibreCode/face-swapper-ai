@@ -82,11 +82,8 @@ export function getResetPasswordEmailHtml(resetLink: string): string {
     <div class="logo">FaceSwapper.ai</div>
     <h1>Reset Your Password</h1>
     <p>We received a request to reset your password. No worries! You can reset it by clicking the button below.</p>
-    
     <a href="${resetLink}" class="btn">Reset Password</a>
-    
     <p class="footer">If you didn't request a password reset, you can safely ignore this email.</p>
-    
     <div class="link-text">
         <p>Or copy and paste this link into your browser:</p>
         <a href="${resetLink}" style="color: #94a3b8;">${resetLink}</a>

@@ -29,9 +29,6 @@ export class MagicHourFaceSwapProvider implements FaceSwapProvider {
     }
 
     try {
-      /*
-      logger.info("Calling Magic Hour SDK create...");
-      */
       const response = await client.v1.faceSwap.create({
         assets: {
           videoSource: "file",
@@ -44,10 +41,6 @@ export class MagicHourFaceSwapProvider implements FaceSwapProvider {
         name: "Face Swap Video",
       });
 
-      /*
-      logger.info("Magic Hour Response: " + JSON.stringify(response));
-      */
-
       return {
         status: "QUEUED",
         jobId: response.id,
@@ -55,7 +48,6 @@ export class MagicHourFaceSwapProvider implements FaceSwapProvider {
       };
     } catch (error: unknown) {
       logger.error("Magic Hour Error:", { error });
-
       interface MagicHourError {
         message?: string;
         response?: {
@@ -63,7 +55,6 @@ export class MagicHourFaceSwapProvider implements FaceSwapProvider {
           data?: { message?: string };
         };
       }
-
       const err = error as MagicHourError;
       let errorMessage = err.message || "Unknown Magic Hour Error";
 
@@ -91,8 +82,6 @@ export class MagicHourFaceSwapProvider implements FaceSwapProvider {
 
     try {
       const project = await client.v1.videoProjects.get({ id: jobId });
-
-      // logger.info(`[Magic Hour] Status: ${project.status}`);
       let status: FaceSwapResultStatus = "PENDING";
 
       if (project.status === "complete") status = "COMPLETED";

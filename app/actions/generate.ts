@@ -48,7 +48,6 @@ export async function startGeneration(templateId: string, assetId: string) {
       const key = path.startsWith("/") ? path.substring(1) : path;
 
       if (key) {
-        // console.log(`[Generate] Generating fresh presigned URL for key: ${key}`);
         const freshUrl = await getPresignedGetUrl(key);
 
         if (freshUrl) {
@@ -59,7 +58,6 @@ export async function startGeneration(templateId: string, assetId: string) {
       logger.warn("[Generate] Failed to generate presigned URL, using original:", { error: e });
     }
 
-    // console.log(`[Generate] Starting generation. Template Duration: ${template.duration}`);
     const result = await faceSwapService.swapFace({
       targetVideoUrl: template.videoUrl,
       swapImageUrl: assetUrl,

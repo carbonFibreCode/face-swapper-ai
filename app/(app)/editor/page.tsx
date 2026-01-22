@@ -12,8 +12,14 @@ import { MediaBoxGrid, VideoUploadBox, FaceUploadBox } from "@/components/editor
 import { useEditorStore, UploadedFileInfo } from "@/lib/stores/editor-store";
 import { editorContent } from "@/lib/content/editor";
 import { commonContent } from "@/lib/content/common";
+import { useRouter, useSearchParams, usePathname } from "next/navigation";
+import { getAsset } from "@/app/actions/asset-actions";
+import { Asset } from "@/lib/types/assets";
 
 export default function EditorPage() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const pathname = usePathname();
   const {
     selectedVideo,
     selectedImage,
@@ -28,13 +34,110 @@ export default function EditorPage() {
     setStatus,
     setResultVideoUrl,
     resetAll,
+    setSelectedVideo,
+    setSelectedImage,
   } = useEditorStore();
   const videoFileRef = useRef<File | null>(null);
   const imageFileRef = useRef<File | null>(null);
   const pollingInterval = useRef<NodeJS.Timeout | null>(null);
   const [isPending, startTransition] = useTransition();
   const [isUploading, setIsUploading] = React.useState(false);
+  const [isLoadingAssets, setIsLoadingAssets] = React.useState(true);
 
+  useEffect(() => {
+    const fetchAssets = async () => {
+      const videoId = searchParams.get("video");
+      const imageId = searchParams.get("image");
+
+      if (videoId && (!selectedVideo || selectedVideo.id !== videoId) && !uploadedVideo) {
+        try {
+          const res = await getAsset(videoId);
+
+          if (res.success) {
+            const asset: Asset = {
+              ...res.data,
+              createdAt: new Date(res.data.createdAt),
+            };
+
+            setSelectedVideo(asset);
+          }
+        } catch (e) {
+          console.error("Failed to fetch video asset", e);
+        }
+      }
+
+      if (imageId && (!selectedImage || selectedImage.id !== imageId) && !uploadedImage) {
+        try {
+          const res = await getAsset(imageId);
+
+          if (res.success) {
+            const asset: Asset = {
+              ...res.data,
+              createdAt: new Date(res.data.createdAt),
+            };
+
+            setSelectedImage(asset);
+          }
+        } catch (e) {
+          console.error("Failed to fetch image asset", e);
+        }
+      }
+
+      setIsLoadingAssets(false);
+    };
+
+    fetchAssets();
+  }, [
+    searchParams,
+    selectedVideo,
+    selectedImage,
+    uploadedVideo,
+    uploadedImage,
+    setSelectedVideo,
+    setSelectedImage,
+  ]);
+  useEffect(() => {
+    if (isLoadingAssets) return;
+    const params = new URLSearchParams(searchParams.toString());
+    let changed = false;
+
+    if (selectedVideo) {
+      if (params.get("video") !== selectedVideo.id) {
+        params.set("video", selectedVideo.id);
+        changed = true;
+      }
+    } else if (params.has("video")) {
+      if (!uploadedVideo) {
+        params.delete("video");
+        changed = true;
+      }
+    }
+
+    if (selectedImage) {
+      if (params.get("image") !== selectedImage.id) {
+        params.set("image", selectedImage.id);
+        changed = true;
+      }
+    } else if (params.has("image")) {
+      if (!uploadedImage) {
+        params.delete("image");
+        changed = true;
+      }
+    }
+
+    if (changed) {
+      router.replace(`${pathname}?${params.toString()}`);
+    }
+  }, [
+    selectedVideo,
+    selectedImage,
+    uploadedVideo,
+    uploadedImage,
+    isLoadingAssets,
+    pathname,
+    router,
+    searchParams,
+  ]);
   useEffect(() => {
     if (jobId && !resultVideoUrl && status !== JobStatus.FAILED) {
       pollingInterval.current = setInterval(async () => {

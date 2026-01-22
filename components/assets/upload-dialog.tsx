@@ -116,10 +116,8 @@ export function UploadDialog({ children }: UploadDialogProps) {
                 URL.revokeObjectURL(video.src);
 
                 if (blob) {
-                  // console.log(`[Thumbnail] Generated blob size: ${blob.size}`);
                   resolve(blob);
                 } else {
-                  // console.error("[Thumbnail] Canvas toBlob returned null");
                   resolve(null);
                 }
               },
@@ -127,17 +125,14 @@ export function UploadDialog({ children }: UploadDialogProps) {
               0.85
             );
           } else {
-            // console.error("[Thumbnail] Failed to get 2d context");
             resolve(null);
           }
         } catch {
-          // console.error("[Thumbnail] Generation error:", e);
           resolve(null);
         }
       };
 
       video.onerror = () => {
-        // console.error("[Thumbnail] Video load error:", e);
         URL.revokeObjectURL(video.src);
         resolve(null);
       };
@@ -256,7 +251,6 @@ export function UploadDialog({ children }: UploadDialogProps) {
       fetchAssets();
       setIsOpen(false);
     } catch (error: unknown) {
-      // console.error("Upload error:", error);
       toast.error(error instanceof Error ? error.message : "Failed to upload asset");
     } finally {
       setIsUploading(false);

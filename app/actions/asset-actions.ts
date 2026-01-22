@@ -14,6 +14,7 @@ import {
   AssetServiceResult,
   GetAssetsOutput,
   CreateAssetOutput,
+  GetAssetOutput,
 } from "@/lib/services/asset-service";
 import { logger } from "@/lib/logger";
 
@@ -162,4 +163,18 @@ export async function getAssetCounts(): Promise<
       code: "INTERNAL_ERROR",
     };
   }
+}
+
+export async function getAsset(assetId: string): Promise<AssetServiceResult<GetAssetOutput>> {
+  const userId = await getAuthenticatedUserId();
+
+  if (!userId) {
+    return {
+      success: false,
+      error: "Please sign in",
+      code: "UNAUTHORIZED",
+    };
+  }
+
+  return assetService.getAsset(userId, assetId);
 }

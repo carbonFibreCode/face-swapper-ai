@@ -86,7 +86,7 @@ export const useEditorStore = create<EditorState>()(
     }),
     {
       name: "editor-state",
-      storage: createJSONStorage(() => sessionStorage),
+      storage: createJSONStorage(() => localStorage),
       partialize: (state) => ({
         selectedVideo: state.selectedVideo,
         selectedImage: state.selectedImage,

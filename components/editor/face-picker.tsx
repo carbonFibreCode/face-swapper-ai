@@ -24,8 +24,7 @@ export function FacePicker({ onSelect, selectedFaceId }: FacePickerProps) {
       .then((fetchedAssets) => {
         setAssets(fetchedAssets || []);
       })
-      .catch(() => {}); // Suppress error log
-      // .catch((err) => console.error("Failed to load assets:", err));
+      .catch(() => {});
   }, []);
 
   const handleDragOver = (e: React.DragEvent) => {
@@ -82,15 +81,9 @@ export function FacePicker({ onSelect, selectedFaceId }: FacePickerProps) {
         headers: { "Content-Type": file.type },
       });
 
-      /*
-      console.log("Upload response status:", uploadRes.status);
-      console.log("Upload response headers:", Object.fromEntries(uploadRes.headers));
-      */
-
       if (!uploadRes.ok) {
         const errorText = await uploadRes.text();
 
-        // console.error("Upload error body:", errorText);
         throw new Error(`Upload to storage failed: ${uploadRes.status} - ${errorText}`);
       }
 
@@ -101,7 +94,6 @@ export function FacePicker({ onSelect, selectedFaceId }: FacePickerProps) {
       onSelect(newAsset.id);
       toast.success("Face uploaded successfully!");
     } catch {
-     // console.error(error);
       toast.error("Upload failed. Please try again.");
     } finally {
       setIsUploading(false);

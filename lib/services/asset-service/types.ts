@@ -59,6 +59,10 @@ export interface CreateAssetOutput {
   success: true;
   data: AssetDTO;
 }
+export interface GetAssetOutput {
+  success: true;
+  data: AssetDTO;
+}
 export interface ErrorOutput {
   success: false;
   error: string;

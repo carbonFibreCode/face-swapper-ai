@@ -31,7 +31,12 @@ export function VideoPlayer({ src, poster, className }: VideoPlayerProps) {
     const v = videoRef.current;
 
     if (!v) return;
-    v.paused ? v.play() : v.pause();
+
+    if (v.paused) {
+      v.play();
+    } else {
+      v.pause();
+    }
   }, []);
   const toggleMute = useCallback(() => {
     const v = videoRef.current;
@@ -90,9 +95,11 @@ export function VideoPlayer({ src, poster, className }: VideoPlayerProps) {
   }, [isPlaying]);
 
   useEffect(() => {
-    resetHide();
+    // Wrapped in timeout to avoid sync setState in effect
+    const t = setTimeout(resetHide, 0);
 
     return () => {
+      clearTimeout(t);
       if (hideTimeout.current) clearTimeout(hideTimeout.current);
     };
   }, [isPlaying, resetHide]);

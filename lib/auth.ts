@@ -3,7 +3,6 @@ import { prismaAdapter } from "better-auth/adapters/prisma";
 import prisma from "@/lib/prisma";
 import { logger } from "@/lib/logger";
 import { getResetPasswordEmailHtml } from "@/lib/email/templates/reset-password";
-
 export const auth = betterAuth({
   database: prismaAdapter(prisma, {
     provider: "postgresql",
@@ -14,7 +13,6 @@ export const auth = betterAuth({
       const resendApiKey = process.env.RESEND_API_KEY;
 
       if (!resendApiKey) {
-        // Fallback for development if no key is provided
         if (process.env.NODE_ENV === "development") {
           console.log("-----------------------------------------");
           console.log("🔐 Password Reset Request (Resend API Key missing)");
@@ -31,9 +29,7 @@ export const auth = betterAuth({
       try {
         const { Resend } = await import("resend");
         const resend = new Resend(resendApiKey);
-
         const fromEmail = process.env.RESEND_FROM_EMAIL || "no_arun@resend.dev";
-
         const { error } = await resend.emails.send({
           from: fromEmail,
           to: user.email,

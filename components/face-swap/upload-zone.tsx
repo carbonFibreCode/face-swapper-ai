@@ -4,7 +4,6 @@ import React, { useCallback, useState } from "react";
 import { useDropzone, FileRejection } from "react-dropzone";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
-import { X } from "lucide-react";
 interface UploadZoneProps {
   onFileSelect: (file: File | null) => void;
   accept: Record<string, string[]>;

@@ -38,11 +38,11 @@ export async function generateFaceSwap(input: {
   });
 
   try {
-    if (targetVideoKey) {
+    if (targetVideoKey && !targetVideoUrl) {
       targetVideoUrl = await storageProvider.getPresignedGetUrl(targetVideoKey);
     }
 
-    if (swapImageKey) {
+    if (swapImageKey && !swapImageUrl) {
       swapImageUrl = await storageProvider.getPresignedGetUrl(swapImageKey);
     }
 

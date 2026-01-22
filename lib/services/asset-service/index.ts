@@ -7,6 +7,7 @@ export type {
   AssetDTO,
   ErrorOutput,
   AssetServiceResult,
+  GetAssetOutput,
 } from "./types";
 export { GetAssetsInputSchema, DeleteAssetInputSchema, CreateAssetInputSchema } from "./types";
 export type { IAssetService } from "./asset-service";

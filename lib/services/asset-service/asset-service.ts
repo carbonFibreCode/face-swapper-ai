@@ -10,6 +10,7 @@ import {
   AssetDTO,
   AssetServiceResult,
   mapAssetToDTO,
+  GetAssetOutput,
 } from "./types";
 import { IAssetRepository, assetRepository } from "./asset-repository";
 import { IStorageProvider, storageProvider } from "../storage";
@@ -24,6 +25,7 @@ export interface IAssetService {
     userId: string,
     input: CreateAssetInput
   ): Promise<AssetServiceResult<CreateAssetOutput>>;
+  getAsset(userId: string, assetId: string): Promise<AssetServiceResult<GetAssetOutput>>;
 }
 export class AssetService implements IAssetService {
   constructor(
@@ -115,6 +117,54 @@ export class AssetService implements IAssetService {
       return {
         success: false,
         error: "Failed to fetch assets",
+        code: "INTERNAL_ERROR",
+      };
+    }
+  }
+  async getAsset(userId: string, assetId: string): Promise<AssetServiceResult<GetAssetOutput>> {
+    try {
+      const asset = await this.repository.findByIdForUser(assetId, userId);
+
+      if (!asset) {
+        return {
+          success: false,
+          error: "Asset not found",
+          code: "NOT_FOUND",
+        };
+      }
+
+      const dto = mapAssetToDTO(asset);
+      const mainKey = this.extractKeyFromUrl(asset.url);
+
+      if (mainKey) {
+        dto.url = await this.storage.getPresignedGetUrl(mainKey);
+        dto.key = mainKey;
+      }
+
+      if (asset.thumbnailUrl && asset.thumbnailUrl !== asset.url) {
+        const thumbKey = this.extractKeyFromUrl(asset.thumbnailUrl);
+
+        if (thumbKey) {
+          dto.thumbnailUrl = await this.storage.getPresignedGetUrl(thumbKey);
+        }
+      } else if (mainKey) {
+        dto.thumbnailUrl = dto.url;
+      }
+
+      return {
+        success: true,
+        data: dto,
+      };
+    } catch (error) {
+      this.logger.error("[AssetService] getAsset error:", {
+        userId,
+        assetId,
+        error: error instanceof Error ? error.message : "Unknown error",
+      });
+
+      return {
+        success: false,
+        error: "Failed to fetch asset",
         code: "INTERNAL_ERROR",
       };
     }

@@ -158,11 +158,7 @@ export function AssetCard({ asset }: AssetCardProps) {
             </button>
           </div>
         </div>
-        <div className="p-2">
-          <h3 className="font-medium text-sm truncate" title={asset.name || "Untitled Asset"}>
-            {asset.name || "Untitled Asset"}
-          </h3>
-        </div>
+        {}
       </div>
       <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
         <DialogContent>

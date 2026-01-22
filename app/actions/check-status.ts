@@ -19,13 +19,6 @@ export async function checkJobStatus(generationId: string): Promise<StatusAction
     }
 
     if (generation.status !== JobStatus.QUEUED) {
-      /*
-      console.log("Job status check [Immediate]:", {
-        status: generation.status,
-        videoUrl: generation.resultUrl,
-      });
-      */
-
       return {
         success: true,
         status: generation.status as JobStatus,
@@ -35,8 +28,6 @@ export async function checkJobStatus(generationId: string): Promise<StatusAction
 
     if (generation.providerJobId) {
       const result = await faceSwapService.getJobStatus(generation.providerJobId);
-
-      // console.log("Job status check [Service Update]:", result);
 
       if (result.status === "COMPLETED" && result.videoUrl) {
         const updated = await prisma.generation.update({
