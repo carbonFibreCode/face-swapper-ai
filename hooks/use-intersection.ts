@@ -1,7 +1,5 @@
 "use client";
-
 import { useEffect, useRef } from "react";
-
 export function useIntersection({
   onIntersect,
   threshold = 0.1,
@@ -11,13 +9,11 @@ export function useIntersection({
 }) {
   const ref = useRef<HTMLDivElement>(null);
   const callbackRef = useRef(onIntersect);
-
   useEffect(() => {
     callbackRef.current = onIntersect;
   }, [onIntersect]);
   useEffect(() => {
     const element = ref.current;
-
     if (!element) return;
     const observer = new IntersectionObserver(
       (entries) => {
@@ -27,11 +23,8 @@ export function useIntersection({
       },
       { threshold }
     );
-
     observer.observe(element);
-
     return () => observer.disconnect();
   }, [threshold]);
-
   return ref;
 }

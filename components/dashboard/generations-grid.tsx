@@ -1,10 +1,7 @@
 "use client";
-
 import { Sparkles } from "lucide-react";
-
 export function GenerationsGrid() {
   const generations = [];
-
   if (generations.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center py-20 text-center animate-in fade-in zoom-in duration-500">
@@ -18,7 +15,6 @@ export function GenerationsGrid() {
       </div>
     );
   }
-
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
       {}

@@ -8,7 +8,6 @@ export class ConsoleLogger implements ILogger {
   private formatMessage(level: string, message: string, meta?: Record<string, unknown>): string {
     const timestamp = new Date().toISOString();
     const metaString = meta ? ` ${JSON.stringify(meta)}` : "";
-
     return `[${timestamp}] [${level.toUpperCase()}] ${message}${metaString}`;
   }
   info(message: string, meta?: Record<string, unknown>): void {

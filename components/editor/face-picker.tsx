@@ -12,13 +12,11 @@ type Asset = {
   id: string;
   url: string;
 };
-
 export function FacePicker({ onSelect, selectedFaceId }: FacePickerProps) {
   const [isDragging, setIsDragging] = useState(false);
   const [selectedId, setSelectedId] = useState<string | null>(selectedFaceId || null);
   const [assets, setAssets] = useState<Asset[]>([]);
   const [isUploading, setIsUploading] = useState(false);
-
   useEffect(() => {
     getUserAssets()
       .then((fetchedAssets) => {
@@ -26,32 +24,26 @@ export function FacePicker({ onSelect, selectedFaceId }: FacePickerProps) {
       })
       .catch(() => {});
   }, []);
-
   const handleDragOver = (e: React.DragEvent) => {
     e.preventDefault();
     setIsDragging(true);
   };
-
   const handleLeave = (e: React.DragEvent) => {
     e.preventDefault();
     setIsDragging(false);
   };
-
   const handleDrop = (e: React.DragEvent) => {
     e.preventDefault();
     setIsDragging(false);
     const file = e.dataTransfer.files?.[0];
-
     if (file && file.type.startsWith("image/")) {
       handleUpload(file);
     }
   };
-
   const handleAssetClick = (asset: { id: string; url: string }) => {
     setSelectedId(asset.id);
     onSelect(asset.id);
   };
-
   const handleUpload = async (file: File) => {
     try {
       setIsUploading(true);
@@ -62,33 +54,24 @@ export function FacePicker({ onSelect, selectedFaceId }: FacePickerProps) {
           fileSize: file.size,
         }),
       });
-
       if (!res.ok) {
         const error = await res.json();
-
         throw new Error(error.error || "Failed to get upload URL");
       }
-
       const { signedUrl, publicUrl } = await res.json();
-
       if (!publicUrl) {
         throw new Error("API did not return a public URL. Check route.ts");
       }
-
       const uploadRes = await fetch(signedUrl, {
         method: "PUT",
         body: file,
         headers: { "Content-Type": file.type },
       });
-
       if (!uploadRes.ok) {
         const errorText = await uploadRes.text();
-
         throw new Error(`Upload to storage failed: ${uploadRes.status} - ${errorText}`);
       }
-
       const newAsset = await saveAssetToDb(publicUrl);
-
       setAssets([newAsset, ...assets]);
       setSelectedId(newAsset.id);
       onSelect(newAsset.id);
@@ -99,7 +82,6 @@ export function FacePicker({ onSelect, selectedFaceId }: FacePickerProps) {
       setIsUploading(false);
     }
   };
-
   return (
     <div className="flex flex-col h-full overflow-hidden">
       <h3 className="font-semibold mb-3">Select Face</h3>

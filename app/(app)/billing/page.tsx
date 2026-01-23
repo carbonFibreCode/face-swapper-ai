@@ -4,7 +4,6 @@ export const metadata: Metadata = {
   title: "Billing | FaceSwapper.ai",
   description: "Manage your credits and subscription",
 };
-
 export default function BillingPage() {
   return <BillingDashboard />;
 }

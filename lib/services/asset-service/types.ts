@@ -82,7 +82,6 @@ export interface DatabaseAsset {
   duration: number | null;
   createdAt: Date;
 }
-
 export function mapAssetToDTO(asset: DatabaseAsset): AssetDTO {
   return {
     id: asset.id,

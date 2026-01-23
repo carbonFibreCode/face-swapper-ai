@@ -1,5 +1,4 @@
 import { create } from "zustand";
-import { persist, createJSONStorage } from "zustand/middleware";
 import { Asset } from "@/lib/types/assets";
 import { JobStatus } from "@/lib/types";
 export interface UploadedFileInfo {
@@ -27,9 +26,52 @@ interface EditorState {
   resetGeneration: () => void;
   resetAll: () => void;
 }
-export const useEditorStore = create<EditorState>()(
-  persist(
-    (set) => ({
+export const useEditorStore = create<EditorState>()((set) => ({
+  selectedVideo: null,
+  selectedImage: null,
+  uploadedVideo: null,
+  uploadedImage: null,
+  jobId: null,
+  status: null,
+  resultVideoUrl: null,
+  setSelectedVideo: (asset) =>
+    set({
+      selectedVideo: asset,
+      uploadedVideo: null,
+    }),
+  setSelectedImage: (asset) =>
+    set({
+      selectedImage: asset,
+      uploadedImage: null,
+    }),
+  setUploadedVideo: (file) =>
+    set({
+      uploadedVideo: file,
+      selectedVideo: null,
+    }),
+  setUploadedImage: (file) =>
+    set({
+      uploadedImage: file,
+      selectedImage: null,
+    }),
+  setJobId: (id) => set({ jobId: id }),
+  setStatus: (status) => set({ status }),
+  setResultVideoUrl: (url) => set({ resultVideoUrl: url }),
+  resetAssets: () =>
+    set({
+      selectedVideo: null,
+      selectedImage: null,
+      uploadedVideo: null,
+      uploadedImage: null,
+    }),
+  resetGeneration: () =>
+    set({
+      jobId: null,
+      status: null,
+      resultVideoUrl: null,
+    }),
+  resetAll: () =>
+    set({
       selectedVideo: null,
       selectedImage: null,
       uploadedVideo: null,
@@ -37,67 +79,7 @@ export const useEditorStore = create<EditorState>()(
       jobId: null,
       status: null,
       resultVideoUrl: null,
-      setSelectedVideo: (asset) =>
-        set({
-          selectedVideo: asset,
-          uploadedVideo: null,
-        }),
-      setSelectedImage: (asset) =>
-        set({
-          selectedImage: asset,
-          uploadedImage: null,
-        }),
-      setUploadedVideo: (file) =>
-        set({
-          uploadedVideo: file,
-          selectedVideo: null,
-        }),
-      setUploadedImage: (file) =>
-        set({
-          uploadedImage: file,
-          selectedImage: null,
-        }),
-      setJobId: (id) => set({ jobId: id }),
-      setStatus: (status) => set({ status }),
-      setResultVideoUrl: (url) => set({ resultVideoUrl: url }),
-      resetAssets: () =>
-        set({
-          selectedVideo: null,
-          selectedImage: null,
-          uploadedVideo: null,
-          uploadedImage: null,
-        }),
-      resetGeneration: () =>
-        set({
-          jobId: null,
-          status: null,
-          resultVideoUrl: null,
-        }),
-      resetAll: () =>
-        set({
-          selectedVideo: null,
-          selectedImage: null,
-          uploadedVideo: null,
-          uploadedImage: null,
-          jobId: null,
-          status: null,
-          resultVideoUrl: null,
-        }),
     }),
-    {
-      name: "editor-state",
-      storage: createJSONStorage(() => localStorage),
-      partialize: (state) => ({
-        selectedVideo: state.selectedVideo,
-        selectedImage: state.selectedImage,
-        uploadedVideo: state.uploadedVideo,
-        uploadedImage: state.uploadedImage,
-        jobId: state.jobId,
-        status: state.status,
-        resultVideoUrl: state.resultVideoUrl,
-      }),
-    }
-  )
-);
+}));
 export const setVideo = (asset: Asset | null) => useEditorStore.getState().setSelectedVideo(asset);
 export const setImage = (asset: Asset | null) => useEditorStore.getState().setSelectedImage(asset);

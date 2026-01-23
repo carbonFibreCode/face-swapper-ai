@@ -1,5 +1,4 @@
 "use client";
-
 import { useEffect, useCallback } from "react";
 import { ImageOff, Upload, AlertCircle, RefreshCw, Loader2 } from "lucide-react";
 import { AssetCard } from "./asset-card";
@@ -7,7 +6,6 @@ import { UploadDialog } from "./upload-dialog";
 import { useFilteredAssets, useAssetsStore, usePagination } from "@/lib/stores/assets-store";
 import { Button } from "@/components/ui/button";
 import { useIntersection } from "@/hooks/use-intersection";
-
 export function AssetGrid() {
   const assets = useFilteredAssets();
   const viewMode = useAssetsStore((state) => state.viewMode);
@@ -15,7 +13,6 @@ export function AssetGrid() {
   const error = useAssetsStore((state) => state.error);
   const fetchAssets = useAssetsStore((state) => state.fetchAssets);
   const { pagination, loadMore } = usePagination();
-
   useEffect(() => {
     fetchAssets();
   }, [fetchAssets]);
@@ -25,7 +22,6 @@ export function AssetGrid() {
     }
   }, [pagination.hasMore, isLoading, loadMore]);
   const loadMoreRef = useIntersection({ onIntersect: handleLoadMore });
-
   if (isLoading && assets.length === 0) {
     return (
       <div
@@ -46,7 +42,6 @@ export function AssetGrid() {
       </div>
     );
   }
-
   if (error && assets.length === 0) {
     return (
       <div className="glass-card rounded-2xl p-12 flex flex-col items-center justify-center text-center">
@@ -65,7 +60,6 @@ export function AssetGrid() {
       </div>
     );
   }
-
   if (assets.length === 0) {
     return (
       <div className="glass-card rounded-2xl p-12 flex flex-col items-center justify-center text-center">
@@ -85,12 +79,10 @@ export function AssetGrid() {
       </div>
     );
   }
-
   const gridClass =
     viewMode === "grid"
       ? "grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4"
       : "flex flex-col gap-3";
-
   return (
     <>
       <div className={gridClass}>

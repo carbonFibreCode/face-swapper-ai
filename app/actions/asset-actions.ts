@@ -1,5 +1,4 @@
 "use server";
-
 import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
 import { revalidatePath, unstable_noStore as noStore } from "next/cache";
@@ -17,27 +16,22 @@ import {
   GetAssetOutput,
 } from "@/lib/services/asset-service";
 import { logger } from "@/lib/logger";
-
 async function getAuthenticatedUserId(): Promise<string | null> {
   try {
     const session = await auth.api.getSession({
       headers: await headers(),
     });
-
     return session?.user?.id ?? null;
   } catch (error) {
     logger.error("[Auth] Session check failed:", { error });
-
     return null;
   }
 }
-
 export async function getAssets(
   input: Partial<GetAssetsInput> = {}
 ): Promise<AssetServiceResult<GetAssetsOutput>> {
   noStore();
   const userId = await getAuthenticatedUserId();
-
   if (!userId) {
     return {
       success: false,
@@ -45,9 +39,7 @@ export async function getAssets(
       code: "UNAUTHORIZED",
     };
   }
-
   let validatedInput: GetAssetsInput;
-
   try {
     validatedInput = GetAssetsInputSchema.parse(input);
   } catch {
@@ -57,15 +49,12 @@ export async function getAssets(
       code: "VALIDATION_ERROR",
     };
   }
-
   return assetService.getAssets(userId, validatedInput);
 }
-
 export async function deleteAsset(
   input: DeleteAssetInput
 ): Promise<AssetServiceResult<{ success: true }>> {
   const userId = await getAuthenticatedUserId();
-
   if (!userId) {
     return {
       success: false,
@@ -73,9 +62,7 @@ export async function deleteAsset(
       code: "UNAUTHORIZED",
     };
   }
-
   let validatedInput: DeleteAssetInput;
-
   try {
     validatedInput = DeleteAssetInputSchema.parse(input);
   } catch {
@@ -85,21 +72,16 @@ export async function deleteAsset(
       code: "VALIDATION_ERROR",
     };
   }
-
   const result = await assetService.deleteAsset(userId, validatedInput);
-
   if (result.success) {
     revalidatePath("/assets");
   }
-
   return result;
 }
-
 export async function createAsset(
   input: CreateAssetInput
 ): Promise<AssetServiceResult<CreateAssetOutput>> {
   const userId = await getAuthenticatedUserId();
-
   if (!userId) {
     return {
       success: false,
@@ -107,7 +89,6 @@ export async function createAsset(
       code: "UNAUTHORIZED",
     };
   }
-
   try {
     CreateAssetInputSchema.parse(input);
   } catch {
@@ -117,10 +98,8 @@ export async function createAsset(
       code: "VALIDATION_ERROR",
     };
   }
-
   return assetService.createAsset(userId, input);
 }
-
 export async function getAssetCounts(): Promise<
   AssetServiceResult<{
     success: true;
@@ -128,7 +107,6 @@ export async function getAssetCounts(): Promise<
   }>
 > {
   const userId = await getAuthenticatedUserId();
-
   if (!userId) {
     return {
       success: false,
@@ -136,7 +114,6 @@ export async function getAssetCounts(): Promise<
       code: "UNAUTHORIZED",
     };
   }
-
   try {
     const result = await assetService.getAssets(userId, {
       filter: "all",
@@ -145,18 +122,15 @@ export async function getAssetCounts(): Promise<
       page: 1,
       limit: 1,
     });
-
     if (!result.success) {
       return result;
     }
-
     return {
       success: true,
       counts: result.data.counts,
     };
   } catch (error) {
     logger.error("[Asset Actions] getAssetCounts error:", { error });
-
     return {
       success: false,
       error: "Failed to get counts",
@@ -164,10 +138,8 @@ export async function getAssetCounts(): Promise<
     };
   }
 }
-
 export async function getAsset(assetId: string): Promise<AssetServiceResult<GetAssetOutput>> {
   const userId = await getAuthenticatedUserId();
-
   if (!userId) {
     return {
       success: false,
@@ -175,6 +147,5 @@ export async function getAsset(assetId: string): Promise<AssetServiceResult<GetA
       code: "UNAUTHORIZED",
     };
   }
-
   return assetService.getAsset(userId, assetId);
 }

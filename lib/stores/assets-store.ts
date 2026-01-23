@@ -73,7 +73,6 @@ export const useAssetsStore = create<AssetsState>((set, get) => ({
   deleteAsset: async (id) => {
     const { assets, selectedAssetId } = get();
     const result = await deleteAssetAction({ assetId: id });
-
     if (result.success) {
       set({
         assets: assets.filter((asset) => asset.id !== id),
@@ -91,19 +90,14 @@ export const useAssetsStore = create<AssetsState>((set, get) => ({
               : get().counts.videos,
         },
       });
-
       return true;
     }
-
     set({ error: result.error || "Failed to delete asset" });
-
     return false;
   },
   fetchAssets: async () => {
     const { filter, sortBy, sortDirection } = get();
-
     set({ isLoading: true, error: null });
-
     try {
       const result = await getAssets({
         filter,
@@ -112,7 +106,6 @@ export const useAssetsStore = create<AssetsState>((set, get) => ({
         page: 1,
         limit: 20,
       });
-
       if (result.success) {
         const assets: Asset[] = result.data.assets.map((dto) => ({
           id: dto.id,
@@ -125,7 +118,6 @@ export const useAssetsStore = create<AssetsState>((set, get) => ({
           duration: dto.duration,
           createdAt: new Date(dto.createdAt),
         }));
-
         set({
           assets,
           pagination: result.data.pagination,
@@ -148,10 +140,8 @@ export const useAssetsStore = create<AssetsState>((set, get) => ({
   },
   loadMore: async () => {
     const { filter, sortBy, sortDirection, pagination, assets } = get();
-
     if (!pagination.hasMore) return;
     set({ isLoading: true });
-
     try {
       const result = await getAssets({
         filter,
@@ -160,7 +150,6 @@ export const useAssetsStore = create<AssetsState>((set, get) => ({
         page: pagination.page + 1,
         limit: pagination.limit,
       });
-
       if (result.success) {
         const newAssets: Asset[] = result.data.assets.map((dto) => ({
           id: dto.id,
@@ -173,7 +162,6 @@ export const useAssetsStore = create<AssetsState>((set, get) => ({
           duration: dto.duration,
           createdAt: new Date(dto.createdAt),
         }));
-
         set({
           assets: [...assets, ...newAssets],
           pagination: result.data.pagination,
@@ -188,25 +176,20 @@ export const useAssetsStore = create<AssetsState>((set, get) => ({
     }
   },
 }));
-
 export const useFilteredAssets = () => {
   const assets = useAssetsStore((state) => state.assets);
   const filter = useAssetsStore((state) => state.filter);
   const sortBy = useAssetsStore((state) => state.sortBy);
   const sortDirection = useAssetsStore((state) => state.sortDirection);
-
   return useMemo(() => {
     let filtered = assets;
-
     if (filter === "images") {
       filtered = filtered.filter((a) => a.type === "image");
     } else if (filter === "videos") {
       filtered = filtered.filter((a) => a.type === "video");
     }
-
     filtered = [...filtered].sort((a, b) => {
       let comparison = 0;
-
       switch (sortBy) {
         case "date":
           comparison = new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime();
@@ -218,18 +201,14 @@ export const useFilteredAssets = () => {
           comparison = a.size - b.size;
           break;
       }
-
       return sortDirection === "asc" ? comparison : -comparison;
     });
-
     return filtered;
   }, [assets, filter, sortBy, sortDirection]);
 };
-
 export const useAssetCounts = () => {
   return useAssetsStore(useShallow((state) => state.counts));
 };
-
 export const useFilterBarState = () => {
   return useAssetsStore(
     useShallow((state) => ({
@@ -244,7 +223,6 @@ export const useFilterBarState = () => {
     }))
   );
 };
-
 export const usePagination = () => {
   return useAssetsStore(
     useShallow((state) => ({

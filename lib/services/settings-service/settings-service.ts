@@ -20,9 +20,7 @@ export class SettingsService {
           code: SettingsErrorCode.VALIDATION_ERROR,
         };
       }
-
       const settings = await this.repository.getUserSettings(userId);
-
       if (!settings) {
         return {
           success: false,
@@ -30,11 +28,9 @@ export class SettingsService {
           code: SettingsErrorCode.NOT_FOUND,
         };
       }
-
       return { success: true, data: settings };
     } catch (error) {
       console.error("[SettingsService.getUserSettings] Error:", error);
-
       return {
         success: false,
         error: "Failed to fetch settings",
@@ -54,9 +50,7 @@ export class SettingsService {
           code: SettingsErrorCode.VALIDATION_ERROR,
         };
       }
-
       const validation = updateProfileSchema.safeParse(data);
-
       if (!validation.success) {
         return {
           success: false,
@@ -64,13 +58,10 @@ export class SettingsService {
           code: SettingsErrorCode.VALIDATION_ERROR,
         };
       }
-
       const updatedSettings = await this.repository.updateUser(userId, data);
-
       return { success: true, data: updatedSettings };
     } catch (error) {
       console.error("[SettingsService.updateProfile] Error:", error);
-
       return {
         success: false,
         error: "Failed to update profile",
@@ -87,13 +78,10 @@ export class SettingsService {
           code: SettingsErrorCode.VALIDATION_ERROR,
         };
       }
-
       await this.repository.deleteUser(userId);
-
       return { success: true, data: undefined };
     } catch (error) {
       console.error("[SettingsService.deleteAccount] Error:", error);
-
       return {
         success: false,
         error: "Failed to delete account",

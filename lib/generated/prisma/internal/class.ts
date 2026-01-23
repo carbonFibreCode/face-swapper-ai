@@ -13,24 +13,19 @@ const config: runtime.GetPrismaClientConfig = {
     types: {},
   },
 };
-
 config.runtimeDataModel = JSON.parse(
   '{"models":{"User":{"fields":[{"name":"id","kind":"scalar","type":"String"},{"name":"name","kind":"scalar","type":"String"},{"name":"email","kind":"scalar","type":"String"},{"name":"emailVerified","kind":"scalar","type":"Boolean"},{"name":"image","kind":"scalar","type":"String"},{"name":"credits","kind":"scalar","type":"Int"},{"name":"assets","kind":"object","type":"Asset","relationName":"AssetToUser"},{"name":"generations","kind":"object","type":"Generation","relationName":"GenerationToUser"},{"name":"plan","kind":"enum","type":"SubscriptionPlan"},{"name":"stripeCustomerId","kind":"scalar","type":"String"},{"name":"createdAt","kind":"scalar","type":"DateTime"},{"name":"updatedAt","kind":"scalar","type":"DateTime"},{"name":"sessions","kind":"object","type":"Session","relationName":"SessionToUser"},{"name":"accounts","kind":"object","type":"Account","relationName":"AccountToUser"}],"dbName":"user"},"Session":{"fields":[{"name":"id","kind":"scalar","type":"String"},{"name":"expiresAt","kind":"scalar","type":"DateTime"},{"name":"token","kind":"scalar","type":"String"},{"name":"createdAt","kind":"scalar","type":"DateTime"},{"name":"updatedAt","kind":"scalar","type":"DateTime"},{"name":"ipAddress","kind":"scalar","type":"String"},{"name":"userAgent","kind":"scalar","type":"String"},{"name":"userId","kind":"scalar","type":"String"},{"name":"user","kind":"object","type":"User","relationName":"SessionToUser"}],"dbName":"session"},"Account":{"fields":[{"name":"id","kind":"scalar","type":"String"},{"name":"accountId","kind":"scalar","type":"String"},{"name":"providerId","kind":"scalar","type":"String"},{"name":"userId","kind":"scalar","type":"String"},{"name":"user","kind":"object","type":"User","relationName":"AccountToUser"},{"name":"accessToken","kind":"scalar","type":"String"},{"name":"refreshToken","kind":"scalar","type":"String"},{"name":"idToken","kind":"scalar","type":"String"},{"name":"accessTokenExpiresAt","kind":"scalar","type":"DateTime"},{"name":"refreshTokenExpiresAt","kind":"scalar","type":"DateTime"},{"name":"scope","kind":"scalar","type":"String"},{"name":"password","kind":"scalar","type":"String"},{"name":"createdAt","kind":"scalar","type":"DateTime"},{"name":"updatedAt","kind":"scalar","type":"DateTime"}],"dbName":"account"},"Verification":{"fields":[{"name":"id","kind":"scalar","type":"String"},{"name":"identifier","kind":"scalar","type":"String"},{"name":"value","kind":"scalar","type":"String"},{"name":"expiresAt","kind":"scalar","type":"DateTime"},{"name":"createdAt","kind":"scalar","type":"DateTime"},{"name":"updatedAt","kind":"scalar","type":"DateTime"}],"dbName":"verification"},"Asset":{"fields":[{"name":"id","kind":"scalar","type":"String"},{"name":"userId","kind":"scalar","type":"String"},{"name":"user","kind":"object","type":"User","relationName":"AssetToUser"},{"name":"name","kind":"scalar","type":"String"},{"name":"url","kind":"scalar","type":"String"},{"name":"thumbnailUrl","kind":"scalar","type":"String"},{"name":"type","kind":"enum","type":"AssetType"},{"name":"size","kind":"scalar","type":"Int"},{"name":"width","kind":"scalar","type":"Int"},{"name":"height","kind":"scalar","type":"Int"},{"name":"duration","kind":"scalar","type":"Float"},{"name":"createdAt","kind":"scalar","type":"DateTime"},{"name":"generations","kind":"object","type":"Generation","relationName":"AssetToGeneration"}],"dbName":null},"Template":{"fields":[{"name":"id","kind":"scalar","type":"String"},{"name":"thumbnailUrl","kind":"scalar","type":"String"},{"name":"videoUrl","kind":"scalar","type":"String"},{"name":"tags","kind":"scalar","type":"String"},{"name":"duration","kind":"scalar","type":"Float"},{"name":"isActive","kind":"scalar","type":"Boolean"},{"name":"createdAt","kind":"scalar","type":"DateTime"},{"name":"generations","kind":"object","type":"Generation","relationName":"GenerationToTemplate"}],"dbName":null},"Generation":{"fields":[{"name":"id","kind":"scalar","type":"String"},{"name":"userId","kind":"scalar","type":"String"},{"name":"user","kind":"object","type":"User","relationName":"GenerationToUser"},{"name":"templateId","kind":"scalar","type":"String"},{"name":"template","kind":"object","type":"Template","relationName":"GenerationToTemplate"},{"name":"assetId","kind":"scalar","type":"String"},{"name":"asset","kind":"object","type":"Asset","relationName":"AssetToGeneration"},{"name":"status","kind":"enum","type":"JobStatus"},{"name":"failureReason","kind":"scalar","type":"String"},{"name":"cost","kind":"scalar","type":"Int"},{"name":"providerJobId","kind":"scalar","type":"String"},{"name":"resultUrl","kind":"scalar","type":"String"},{"name":"createdAt","kind":"scalar","type":"DateTime"},{"name":"updatedAt","kind":"scalar","type":"DateTime"}],"dbName":null}},"enums":{},"types":{}}'
 );
-
 async function decodeBase64AsWasm(wasmBase64: string): Promise<WebAssembly.Module> {
   const { Buffer } = await import("node:buffer");
   const wasmArray = Buffer.from(wasmBase64, "base64");
-
   return new WebAssembly.Module(wasmArray);
 }
-
 config.compilerWasm = {
   getRuntime: async () => await import("@prisma/client/runtime/query_compiler_bg.postgresql.mjs"),
   getQueryCompilerWasmModule: async () => {
     const { wasm } =
       await import("@prisma/client/runtime/query_compiler_bg.postgresql.wasm-base64.mjs");
-
     return await decodeBase64AsWasm(wasm);
   },
 };
@@ -106,7 +101,6 @@ export interface PrismaClient<
   get template(): Prisma.TemplateDelegate<ExtArgs, { omit: OmitOpts }>;
   get generation(): Prisma.GenerationDelegate<ExtArgs, { omit: OmitOpts }>;
 }
-
 export function getPrismaClientClass(): PrismaClientConstructor {
   return runtime.getPrismaClient(config) as unknown as PrismaClientConstructor;
 }

@@ -4,24 +4,14 @@ import { useEditorStore } from "@/lib/stores/editor-store";
 import { checkJobStatus } from "@/app/actions/check-status";
 import { JobStatus } from "@/lib/types";
 import { editorContent } from "@/lib/content/editor";
-
 export function useJobPolling() {
   const pollingInterval = useRef<NodeJS.Timeout | null>(null);
-  
-  const {
-    jobId,
-    status,
-    resultVideoUrl,
-    setJobId,
-    setStatus,
-    setResultVideoUrl,
-  } = useEditorStore();
-
+  const { jobId, status, resultVideoUrl, setJobId, setStatus, setResultVideoUrl } =
+    useEditorStore();
   useEffect(() => {
     if (jobId && !resultVideoUrl && status !== JobStatus.FAILED) {
       pollingInterval.current = setInterval(async () => {
         const result = await checkJobStatus(jobId);
-
         if (result.success) {
           if (result.status === JobStatus.COMPLETED && result.videoUrl) {
             setResultVideoUrl(result.videoUrl);
@@ -40,7 +30,6 @@ export function useJobPolling() {
         }
       }, 3000);
     }
-
     return () => {
       if (pollingInterval.current) clearInterval(pollingInterval.current);
     };

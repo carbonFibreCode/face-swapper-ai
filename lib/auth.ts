@@ -11,7 +11,6 @@ export const auth = betterAuth({
     enabled: true,
     async sendResetPassword({ url, user }: { url: string; user: { email: string } }) {
       const resendApiKey = process.env.RESEND_API_KEY;
-
       if (!resendApiKey) {
         if (process.env.NODE_ENV === "development") {
           console.log("-----------------------------------------");
@@ -22,10 +21,8 @@ export const auth = betterAuth({
         } else {
           logger.error("RESEND_API_KEY is missing. Cannot send reset email.");
         }
-
         return;
       }
-
       try {
         const { Resend } = await import("resend");
         const resend = new Resend(resendApiKey);
@@ -36,7 +33,6 @@ export const auth = betterAuth({
           subject: "Reset your password",
           html: getResetPasswordEmailHtml(url),
         });
-
         if (error) {
           logger.error("Failed to send reset email via Resend:", { error });
         }

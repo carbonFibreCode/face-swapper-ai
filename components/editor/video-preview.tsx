@@ -1,5 +1,4 @@
 "use client";
-
 import { Loader2 } from "lucide-react";
 import { useEffect, useRef } from "react";
 interface VideoPreviewProps {
@@ -7,31 +6,25 @@ interface VideoPreviewProps {
   resultUrl?: string | null;
   isProcessing?: boolean;
 }
-
 export function VideoPreview({ templateUrl, resultUrl, isProcessing }: VideoPreviewProps) {
   const activeUrl = resultUrl || templateUrl;
   const isResult = !!resultUrl;
   const mainVideoRef = useRef<HTMLVideoElement>(null);
   const bgVideoRef = useRef<HTMLVideoElement>(null);
-
   useEffect(() => {
     const main = mainVideoRef.current;
     const bg = bgVideoRef.current;
-
     if (!main || !bg) return;
     const onPlay = () => bg.play().catch(() => {});
     const onPause = () => bg.pause();
-
     const onSeek = () => {
       bg.currentTime = main.currentTime;
     };
-
     bg.muted = true;
     main.addEventListener("play", onPlay);
     main.addEventListener("pause", onPause);
     main.addEventListener("seeking", onSeek);
     main.addEventListener("seeked", onSeek);
-
     return () => {
       main.removeEventListener("play", onPlay);
       main.removeEventListener("pause", onPause);
@@ -39,7 +32,6 @@ export function VideoPreview({ templateUrl, resultUrl, isProcessing }: VideoPrev
       main.removeEventListener("seeked", onSeek);
     };
   }, [activeUrl]);
-
   return (
     <div className="relative w-full h-full flex items-center justify-center bg-black overflow-hidden">
       <video

@@ -1,5 +1,4 @@
 "use client";
-
 import * as React from "react";
 import { cn } from "@/lib/utils";
 interface TabItem {
@@ -14,7 +13,6 @@ interface AnimatedTabsProps {
   className?: string;
   layout?: "equal" | "variable";
 }
-
 export function AnimatedTabs({
   items,
   value,
@@ -25,33 +23,26 @@ export function AnimatedTabs({
   const [indicatorStyle, setIndicatorStyle] = React.useState({ left: 0, width: 0 });
   const containerRef = React.useRef<HTMLDivElement>(null);
   const itemsRef = React.useRef<Map<string, HTMLButtonElement>>(new Map());
-
   React.useEffect(() => {
     const updateIndicator = () => {
       const container = containerRef.current;
       const activeItem = itemsRef.current.get(value);
-
       if (container && activeItem) {
         const containerRect = container.getBoundingClientRect();
         const itemRect = activeItem.getBoundingClientRect();
-
         setIndicatorStyle({
           left: itemRect.left - containerRect.left,
           width: itemRect.width,
         });
       }
     };
-
     const timeoutId = setTimeout(updateIndicator, 0);
-
     window.addEventListener("resize", updateIndicator);
-
     return () => {
       clearTimeout(timeoutId);
       window.removeEventListener("resize", updateIndicator);
     };
   }, [value, items]);
-
   return (
     <div
       ref={containerRef}
@@ -70,7 +61,6 @@ export function AnimatedTabs({
       <div className={cn("flex w-full relative z-10", layout === "variable" && "gap-1")}>
         {items.map((item) => {
           const isActive = item.value === value;
-
           return (
             <button
               key={item.value}

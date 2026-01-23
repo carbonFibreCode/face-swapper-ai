@@ -1,7 +1,6 @@
 import { AppSidebar } from "@/components/app-sidebar";
 import { AppHeader } from "@/components/app-header";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
-
 export default function AppLayout({ children }: { children: React.ReactNode }) {
   return (
     <div className="bg-gradient-mesh min-h-screen">

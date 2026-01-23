@@ -1,18 +1,14 @@
 "use client";
-
 import * as React from "react";
 import { Moon, Sun, Monitor } from "lucide-react";
 import { useTheme } from "next-themes";
 import { cn } from "@/lib/utils";
-
 export function ThemeToggle({ className }: { className?: string }) {
   const { theme, setTheme } = useTheme();
   const [mounted, setMounted] = React.useState(false);
-
   React.useEffect(() => {
     setMounted(true);
   }, []);
-
   if (!mounted) {
     return (
       <div className={cn("flex items-center gap-1 p-1 rounded-xl bg-muted/50", className)}>
@@ -22,13 +18,11 @@ export function ThemeToggle({ className }: { className?: string }) {
       </div>
     );
   }
-
   const options = [
     { value: "light", icon: Sun, label: "Light" },
     { value: "dark", icon: Moon, label: "Dark" },
     { value: "system", icon: Monitor, label: "System" },
   ];
-
   return (
     <div className={cn("flex items-center gap-1 p-1 rounded-xl bg-muted/50", className)}>
       {options.map((option) => (

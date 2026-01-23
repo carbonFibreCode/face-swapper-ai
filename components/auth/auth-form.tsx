@@ -1,5 +1,4 @@
 "use client";
-
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -17,7 +16,6 @@ import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { Loader2, Eye, EyeOff } from "lucide-react";
 import Link from "next/link";
-
 export function AuthForm() {
   const [isSignIn, setIsSignIn] = useState(true);
   const [isLoading, setIsLoading] = useState(false);
@@ -26,11 +24,9 @@ export function AuthForm() {
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [name, setName] = useState("");
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
-
     try {
       if (isSignIn) {
         const { error } = await authClient.signIn.email({
@@ -38,7 +34,6 @@ export function AuthForm() {
           password,
           callbackURL: "/dashboard",
         });
-
         if (error) throw error;
         router.push("/dashboard");
       } else {
@@ -48,7 +43,6 @@ export function AuthForm() {
           name,
           callbackURL: "/dashboard",
         });
-
         if (error) throw error;
         toast.success("Account created!");
         router.push("/dashboard");
@@ -63,7 +57,6 @@ export function AuthForm() {
       setIsLoading(false);
     }
   };
-
   return (
     <Card className="w-[350px] mx-auto glass-card">
       <CardHeader>

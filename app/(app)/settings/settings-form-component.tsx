@@ -1,5 +1,4 @@
 "use client";
-
 import { AnimatedTabs } from "@/components/ui/animated-tabs";
 import { useTransition, useState } from "react";
 import { useForm } from "react-hook-form";
@@ -28,7 +27,6 @@ interface SettingsFormProps {
   initialSettings: SettingsDTO;
 }
 const formSchema = updateProfileSchema;
-
 export function SettingsForm({ initialSettings }: SettingsFormProps) {
   const router = useRouter();
   const { theme, setTheme } = useTheme();
@@ -41,12 +39,10 @@ export function SettingsForm({ initialSettings }: SettingsFormProps) {
       name: initialSettings.name || "",
     },
   });
-
   const onSubmit = (values: z.infer<typeof formSchema>) => {
     startTransition(async () => {
       const payload = { ...values, theme: theme };
       const result = await updateProfile(payload);
-
       if (result.success) {
         toast.success("Settings updated successfully");
         router.refresh();
@@ -55,11 +51,9 @@ export function SettingsForm({ initialSettings }: SettingsFormProps) {
       }
     });
   };
-
   const handleDeleteAccount = () => {
     startDeleting(async () => {
       const result = await deleteAccount();
-
       if (result.success) {
         toast.success("Account deleted. Goodbye!");
         window.location.href = "/";
@@ -68,10 +62,8 @@ export function SettingsForm({ initialSettings }: SettingsFormProps) {
       }
     });
   };
-
   const getInitials = (name: string | null) => {
     if (!name) return "U";
-
     return name
       .split(" ")
       .map((n) => n[0])
@@ -79,7 +71,6 @@ export function SettingsForm({ initialSettings }: SettingsFormProps) {
       .substring(0, 2)
       .toUpperCase();
   };
-
   return (
     <div className="space-y-6">
       <div className="space-y-0.5">

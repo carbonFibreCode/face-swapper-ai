@@ -1,5 +1,4 @@
 "use client";
-
 import { useState, useCallback } from "react";
 import { useDropzone } from "react-dropzone";
 import {
@@ -19,7 +18,6 @@ import { formatFileSize } from "@/lib/types/assets";
 interface UploadDialogProps {
   children: React.ReactNode;
 }
-
 export function UploadDialog({ children }: UploadDialogProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [file, setFile] = useState<File | null>(null);
@@ -30,7 +28,6 @@ export function UploadDialog({ children }: UploadDialogProps) {
   const onDrop = useCallback((acceptedFiles: File[]) => {
     if (acceptedFiles.length > 0) {
       const selectedFile = acceptedFiles[0];
-
       setFile(selectedFile);
       setPreview(URL.createObjectURL(selectedFile));
     }
@@ -44,30 +41,24 @@ export function UploadDialog({ children }: UploadDialogProps) {
     maxFiles: 1,
     multiple: false,
   });
-
   const reset = () => {
     setFile(null);
     setPreview(null);
     setUploadProgress(0);
     setIsUploading(false);
   };
-
   const handleOpenChange = (open: boolean) => {
     setIsOpen(open);
     if (!open) reset();
   };
-
   const validateVideo = async (
     file: File
   ): Promise<{ valid: boolean; duration: number; error?: string }> => {
     return new Promise((resolve) => {
       const video = document.createElement("video");
-
       video.preload = "metadata";
-
       video.onloadedmetadata = () => {
         URL.revokeObjectURL(video.src);
-
         if (video.duration < 3) {
           resolve({
             valid: false,
@@ -78,43 +69,34 @@ export function UploadDialog({ children }: UploadDialogProps) {
           resolve({ valid: true, duration: video.duration });
         }
       };
-
       video.onerror = () => {
         URL.revokeObjectURL(video.src);
         resolve({ valid: false, duration: 0, error: "Failed to load video" });
       };
-
       video.src = URL.createObjectURL(file);
     });
   };
-
   const extractVideoThumbnail = async (file: File): Promise<Blob | null> => {
     return new Promise((resolve) => {
       const video = document.createElement("video");
-
       video.preload = "metadata";
       video.muted = true;
       video.playsInline = true;
       video.src = URL.createObjectURL(file);
-
       video.onloadedmetadata = () => {
         video.currentTime = 0.5;
       };
-
       video.onseeked = () => {
         try {
           const canvas = document.createElement("canvas");
-
           canvas.width = video.videoWidth;
           canvas.height = video.videoHeight;
           const ctx = canvas.getContext("2d");
-
           if (ctx) {
             ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
             canvas.toBlob(
               (blob) => {
                 URL.revokeObjectURL(video.src);
-
                 if (blob) {
                   resolve(blob);
                 } else {
@@ -131,49 +113,38 @@ export function UploadDialog({ children }: UploadDialogProps) {
           resolve(null);
         }
       };
-
       video.onerror = () => {
         URL.revokeObjectURL(video.src);
         resolve(null);
       };
     });
   };
-
   const getImageMetadata = async (file: File): Promise<{ width: number; height: number }> => {
     return new Promise((resolve, reject) => {
       const img = new Image();
-
       img.onload = () => {
         resolve({ width: img.width, height: img.height });
         URL.revokeObjectURL(img.src);
       };
-
       img.onerror = reject;
       img.src = URL.createObjectURL(file);
     });
   };
-
   const handleUpload = async () => {
     if (!file) return;
     setIsUploading(true);
     setUploadProgress(0);
     const isVideo = file.type.startsWith("video/");
-
     try {
       let metadata: { width: number; height: number; duration?: number };
       let thumbnailUrl: string | undefined;
-
       setUploadProgress(5);
-
       if (isVideo) {
         const validation = await validateVideo(file);
-
         if (!validation.valid) {
           throw new Error(validation.error || "Invalid video");
         }
-
         const videoEl = document.createElement("video");
-
         videoEl.preload = "metadata";
         await new Promise<void>((resolve) => {
           videoEl.onloadedmetadata = () => resolve();
@@ -188,48 +159,38 @@ export function UploadDialog({ children }: UploadDialogProps) {
       } else {
         metadata = await getImageMetadata(file);
       }
-
       setUploadProgress(15);
-
       if (isVideo) {
         const thumbnail = await extractVideoThumbnail(file);
-
         if (thumbnail) {
           const thumbName = file.name.replace(/\.[^.]+$/, "_thumb.jpg");
           const thumbUrlResult = await getUploadUrl(thumbName, "image/jpeg");
-
           if (thumbUrlResult.success && thumbUrlResult.url && thumbUrlResult.publicUrl) {
             const thumbResponse = await fetch(thumbUrlResult.url, {
               method: "PUT",
               body: thumbnail,
               headers: { "Content-Type": "image/jpeg" },
             });
-
             if (thumbResponse.ok) {
               thumbnailUrl = thumbUrlResult.publicUrl;
             }
           }
         }
       }
-
       setUploadProgress(30);
       const uploadUrlResult = await getUploadUrl(file.name, file.type);
-
       if (!uploadUrlResult.success || !uploadUrlResult.url || !uploadUrlResult.publicUrl) {
         throw new Error(uploadUrlResult.message || "Failed to get upload URL");
       }
-
       setUploadProgress(50);
       const response = await fetch(uploadUrlResult.url, {
         method: "PUT",
         body: file,
         headers: { "Content-Type": file.type },
       });
-
       if (!response.ok) {
         throw new Error("Failed to upload file to storage");
       }
-
       setUploadProgress(85);
       const createResult = await createAsset({
         name: file.name,
@@ -241,11 +202,9 @@ export function UploadDialog({ children }: UploadDialogProps) {
         height: metadata.height,
         duration: metadata.duration,
       });
-
       if (!createResult.success) {
         throw new Error(createResult.error || "Failed to save asset record");
       }
-
       setUploadProgress(100);
       toast.success("Asset uploaded successfully");
       fetchAssets();
@@ -256,7 +215,6 @@ export function UploadDialog({ children }: UploadDialogProps) {
       setIsUploading(false);
     }
   };
-
   return (
     <Dialog open={isOpen} onOpenChange={handleOpenChange}>
       <DialogTrigger asChild>{children}</DialogTrigger>
