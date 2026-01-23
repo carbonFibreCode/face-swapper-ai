@@ -1,5 +1,4 @@
 "use client";
-
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -16,7 +15,6 @@ import { authClient } from "@/lib/auth-client";
 import { toast } from "sonner";
 import { Loader2, Eye, EyeOff } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
-
 export function ResetPasswordForm() {
   const [isLoading, setIsLoading] = useState(false);
   const [password, setPassword] = useState("");
@@ -25,32 +23,23 @@ export function ResetPasswordForm() {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const router = useRouter();
   const searchParams = useSearchParams();
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
     if (password !== confirmPassword) {
       toast.error("Passwords do not match");
-
       return;
     }
-
     const token = searchParams.get("token");
-
     if (!token) {
       toast.error("Invalid or missing reset token");
-
       return;
     }
-
     setIsLoading(true);
-
     try {
       const { error } = await authClient.resetPassword({
         newPassword: password,
         token,
       });
-
       if (error) throw error;
       toast.success("Password reset successfully");
       router.push("/login");
@@ -64,7 +53,6 @@ export function ResetPasswordForm() {
       setIsLoading(false);
     }
   };
-
   return (
     <Card className="w-[350px] mx-auto glass-card">
       <CardHeader>

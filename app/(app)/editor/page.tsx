@@ -11,7 +11,6 @@ import { MediaBoxGrid, VideoUploadBox, FaceUploadBox } from "@/components/editor
 import { useEditorStore, UploadedFileInfo } from "@/lib/stores/editor-store";
 import { editorContent } from "@/lib/content/editor";
 import { commonContent } from "@/lib/content/common";
-import { useEditorSync } from "@/hooks/editor/use-editor-sync";
 import { useJobPolling } from "@/hooks/editor/use-job-polling";
 
 function EditorContent() {
@@ -22,6 +21,8 @@ function EditorContent() {
     uploadedImage,
     jobId,
     resultVideoUrl,
+    setSelectedVideo,
+    setSelectedImage,
     setUploadedVideo,
     setUploadedImage,
     setJobId,
@@ -29,14 +30,10 @@ function EditorContent() {
     setResultVideoUrl,
     resetAll,
   } = useEditorStore();
-
   const videoFileRef = useRef<File | null>(null);
   const imageFileRef = useRef<File | null>(null);
   const [isPending, startTransition] = useTransition();
   const [isUploading, setIsUploading] = useState(false);
-  
-  // Custom hooks for logic separation
-  const { isLoadingAssets } = useEditorSync();
 
   useJobPolling();
 
@@ -53,6 +50,7 @@ function EditorContent() {
       setUploadedVideo(info);
     } else {
       setUploadedVideo(null);
+      setSelectedVideo(null);
     }
   };
 
@@ -69,6 +67,7 @@ function EditorContent() {
       setUploadedImage(info);
     } else {
       setUploadedImage(null);
+      setSelectedImage(null);
     }
   };
 
@@ -95,21 +94,21 @@ function EditorContent() {
       let swapImageKey: string | undefined;
       let targetAssetId: string | undefined;
       let swapAssetId: string | undefined;
-
+      
       if (activeVideoFile) {
         toast.info(editorContent.upload.preparingVideo);
         const videoUpload = await getUploadUrl(activeVideoFile.name, activeVideoFile.type);
-
+        
         if (!videoUpload.success || !videoUpload.url || !videoUpload.publicUrl) {
           throw new Error(editorContent.errors.failedVideoUrl);
         }
-
+        
         const uploadRes = await fetch(videoUpload.url, {
           method: "PUT",
           body: activeVideoFile,
           headers: { "Content-Type": activeVideoFile.type },
         });
-
+        
         if (!uploadRes.ok) throw new Error(editorContent.errors.videoUploadFailed);
         targetVideoUrl = videoUpload.publicUrl;
         targetVideoKey = videoUpload.key;
@@ -126,21 +125,21 @@ function EditorContent() {
         targetVideoUrl = selectedVideo.url;
         targetAssetId = selectedVideo.id;
       }
-
+      
       if (activeImageFile) {
         toast.info(editorContent.upload.preparingImage);
         const imageUpload = await getUploadUrl(activeImageFile.name, activeImageFile.type);
-
+        
         if (!imageUpload.success || !imageUpload.url || !imageUpload.publicUrl) {
           throw new Error(editorContent.errors.failedImageUrl);
         }
-
+        
         const uploadRes = await fetch(imageUpload.url, {
           method: "PUT",
           body: activeImageFile,
           headers: { "Content-Type": activeImageFile.type },
         });
-
+        
         if (!uploadRes.ok) throw new Error(editorContent.errors.imageUploadFailed);
         swapImageUrl = imageUpload.publicUrl;
         swapImageKey = imageUpload.key;
@@ -157,9 +156,10 @@ function EditorContent() {
         swapImageUrl = selectedImage.url;
         swapAssetId = selectedImage.id;
       }
-
+      
       toast.dismiss("upload-toast");
       toast.success(editorContent.status.ready);
+      
       startTransition(async () => {
         const result = await generateFaceSwap({
           targetVideoUrl,
@@ -169,7 +169,7 @@ function EditorContent() {
           targetAssetId,
           swapAssetId,
         });
-
+        
         if (result.success) {
           if (result.data?.videoUrl) {
             setResultVideoUrl(result.data.videoUrl);
@@ -185,33 +185,26 @@ function EditorContent() {
     } catch (error: unknown) {
       console.error(error);
       const message = error instanceof Error ? error.message : commonContent.errors.generic;
-
+      
       toast.error(message);
+      
       setStatus(JobStatus.FAILED);
     } finally {
       setIsUploading(false);
     }
   };
-
+  
   const reset = () => {
     videoFileRef.current = null;
     imageFileRef.current = null;
     resetAll();
   };
-
+  
   const isProcessing = isUploading || isPending || jobId !== null;
   const hasActiveVideo = !!uploadedVideo || !!selectedVideo;
   const hasActiveImage = !!uploadedImage || !!selectedImage;
   const canGenerate = hasActiveVideo && hasActiveImage && !isProcessing && !resultVideoUrl;
   
-  if (isLoadingAssets) {
-     return (
-        <div className="flex items-center justify-center min-h-[calc(100vh-4rem)]">
-          <Loader2 className="h-8 w-8 animate-spin" />
-        </div>
-     );
-  }
-
   return (
     <div className="min-h-[calc(100vh-4rem)] bg-background p-4 md:p-8 flex flex-col">
       {}

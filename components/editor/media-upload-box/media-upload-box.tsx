@@ -1,5 +1,4 @@
 "use client";
-
 import React, { useCallback, useState, useEffect, ReactNode } from "react";
 import { useDropzone, Accept, FileRejection } from "react-dropzone";
 import { cn } from "@/lib/utils";
@@ -16,7 +15,6 @@ export interface MediaUploadBoxProps {
   className?: string;
   renderPreview?: (previewUrl: string, file: File) => ReactNode;
 }
-
 export function MediaUploadBox({
   onFileSelect,
   accept,
@@ -29,25 +27,19 @@ export function MediaUploadBox({
   renderPreview,
 }: MediaUploadBoxProps) {
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
-
   useEffect(() => {
     if (!file) {
       setPreviewUrl(null);
-
       return;
     }
-
     const url = URL.createObjectURL(file);
-
     setPreviewUrl(url);
-
     return () => URL.revokeObjectURL(url);
   }, [file]);
   const onDrop = useCallback(
     (acceptedFiles: File[], fileRejections: FileRejection[]) => {
       if (fileRejections.length > 0) {
         const error = fileRejections[0].errors[0];
-
         if (error.code === "file-too-large") {
           toast.error(`File is too large. Max size is ${Math.round(maxSize / 1024 / 1024)}MB`);
         } else if (error.code === "file-invalid-type") {
@@ -55,22 +47,18 @@ export function MediaUploadBox({
         } else {
           toast.error(error.message);
         }
-
         return;
       }
-
       if (acceptedFiles.length > 0) {
         onFileSelect(acceptedFiles[0]);
       }
     },
     [onFileSelect, maxSize]
   );
-
   const handleClear = (e: React.MouseEvent) => {
     e.stopPropagation();
     onFileSelect(null);
   };
-
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
     accept,
@@ -78,7 +66,6 @@ export function MediaUploadBox({
     multiple: false,
   });
   const hasFile = file && previewUrl;
-
   return (
     <div
       {...getRootProps()}

@@ -1,5 +1,4 @@
 "use client";
-
 import { Upload, LayoutGrid, List, Image as ImageIcon, Video, Layers } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { AnimatedTabs } from "@/components/ui/animated-tabs";
@@ -11,11 +10,9 @@ const FILTER_OPTIONS: { value: FilterType; label: string; icon: React.ElementTyp
   { value: "images", label: "Images", icon: ImageIcon },
   { value: "videos", label: "Videos", icon: Video },
 ];
-
 export function AssetFilterBar() {
   const { filter, viewMode, setFilter, setViewMode } = useFilterBarState();
   const counts = useAssetCounts();
-
   return (
     <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
       {}
@@ -34,7 +31,6 @@ export function AssetFilterBar() {
                   ? counts.images
                   : counts.videos;
             const isActive = filter === option.value;
-
             return {
               value: option.value,
               label: (

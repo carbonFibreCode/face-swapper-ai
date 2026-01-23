@@ -1,5 +1,4 @@
 "use client";
-
 import { useRef, useState, useEffect, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
@@ -10,7 +9,6 @@ interface VideoPlayerProps {
   poster?: string;
   className?: string;
 }
-
 export function VideoPlayer({ src, poster, className }: VideoPlayerProps) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const [isPlaying, setIsPlaying] = useState(false);
@@ -19,19 +17,14 @@ export function VideoPlayer({ src, poster, className }: VideoPlayerProps) {
   const [duration, setDuration] = useState(0);
   const [showControls, setShowControls] = useState(true);
   const hideTimeout = useRef<NodeJS.Timeout | null>(null);
-
   const formatTime = (t: number) => {
     const m = Math.floor(t / 60);
     const s = Math.floor(t % 60);
-
     return `${m}:${s.toString().padStart(2, "0")}`;
   };
-
   const togglePlay = useCallback(() => {
     const v = videoRef.current;
-
     if (!v) return;
-
     if (v.paused) {
       v.play();
     } else {
@@ -40,44 +33,36 @@ export function VideoPlayer({ src, poster, className }: VideoPlayerProps) {
   }, []);
   const toggleMute = useCallback(() => {
     const v = videoRef.current;
-
     if (!v) return;
     v.muted = !v.muted;
     setIsMuted(v.muted);
   }, []);
   const handleSeek = useCallback((value: number[]) => {
     const v = videoRef.current;
-
     if (!v) return;
     v.currentTime = value[0];
     setCurrentTime(value[0]);
   }, []);
   const toggleFullscreen = useCallback(() => {
     const v = videoRef.current;
-
     if (!v) return;
-
     if (document.fullscreenElement) {
       document.exitFullscreen();
     } else {
       v.requestFullscreen();
     }
   }, []);
-
   useEffect(() => {
     const v = videoRef.current;
-
     if (!v) return;
     const onPlay = () => setIsPlaying(true);
     const onPause = () => setIsPlaying(false);
     const onTime = () => setCurrentTime(v.currentTime);
     const onMeta = () => setDuration(v.duration);
-
     v.addEventListener("play", onPlay);
     v.addEventListener("pause", onPause);
     v.addEventListener("timeupdate", onTime);
     v.addEventListener("loadedmetadata", onMeta);
-
     return () => {
       v.removeEventListener("play", onPlay);
       v.removeEventListener("pause", onPause);
@@ -88,22 +73,17 @@ export function VideoPlayer({ src, poster, className }: VideoPlayerProps) {
   const resetHide = useCallback(() => {
     setShowControls(true);
     if (hideTimeout.current) clearTimeout(hideTimeout.current);
-
     if (isPlaying) {
       hideTimeout.current = setTimeout(() => setShowControls(false), 2500);
     }
   }, [isPlaying]);
-
   useEffect(() => {
-    // Wrapped in timeout to avoid sync setState in effect
     const t = setTimeout(resetHide, 0);
-
     return () => {
       clearTimeout(t);
       if (hideTimeout.current) clearTimeout(hideTimeout.current);
     };
   }, [isPlaying, resetHide]);
-
   return (
     <div
       className={cn("relative bg-black group", className)}

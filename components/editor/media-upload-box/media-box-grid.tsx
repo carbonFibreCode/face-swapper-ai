@@ -1,12 +1,10 @@
 "use client";
-
 import React, { ReactNode } from "react";
 import { cn } from "@/lib/utils";
 export interface MediaBoxGridProps {
   children: ReactNode;
   className?: string;
 }
-
 export function MediaBoxGrid({ children, className }: MediaBoxGridProps) {
   return (
     <div

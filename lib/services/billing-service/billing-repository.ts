@@ -21,9 +21,7 @@ class BillingRepository implements IBillingRepository {
         plan: true,
       },
     });
-
     if (!user) return null;
-
     return {
       credits: user.credits,
       plan: user.plan as SubscriptionPlan,
@@ -39,7 +37,6 @@ class BillingRepository implements IBillingRepository {
         cost: true,
       },
     });
-
     return result._sum.cost ?? 0;
   }
   async getRecentTransactions(userId: string, limit: number = 5): Promise<RecentTransactionDTO[]> {
@@ -54,7 +51,6 @@ class BillingRepository implements IBillingRepository {
         createdAt: true,
       },
     });
-
     return generations.map((gen) => ({
       id: gen.id,
       type: "GENERATION" as const,

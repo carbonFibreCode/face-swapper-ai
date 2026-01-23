@@ -1,5 +1,4 @@
 "use client";
-
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -16,19 +15,15 @@ import { toast } from "sonner";
 import { Loader2, ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import { requestPasswordReset } from "@/app/actions/auth-actions";
-
 export function ForgotPasswordForm() {
   const [isLoading, setIsLoading] = useState(false);
   const [email, setEmail] = useState("");
   const [isSubmitted, setIsSubmitted] = useState(false);
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
-
     try {
       const { success, error } = await requestPasswordReset(email);
-
       if (!success) throw new Error(error);
       setIsSubmitted(true);
       toast.success("Reset link sent to your email");
@@ -42,7 +37,6 @@ export function ForgotPasswordForm() {
       setIsLoading(false);
     }
   };
-
   if (isSubmitted) {
     return (
       <Card className="w-[350px] mx-auto glass-card">
@@ -63,7 +57,6 @@ export function ForgotPasswordForm() {
       </Card>
     );
   }
-
   return (
     <Card className="w-[350px] mx-auto glass-card">
       <CardHeader>

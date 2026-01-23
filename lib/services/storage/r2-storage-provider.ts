@@ -33,7 +33,6 @@ export class R2StorageProvider implements IStorageProvider {
       ContentLength: options?.contentLength,
       Metadata: options?.metadata,
     });
-
     return getSignedUrl(this.client, command, { expiresIn: options ? 600 : 3600 });
   }
   async getPresignedGetUrl(key: string): Promise<string> {
@@ -41,7 +40,6 @@ export class R2StorageProvider implements IStorageProvider {
       Bucket: this.bucketName,
       Key: key,
     });
-
     return getSignedUrl(this.client, command, { expiresIn: 3600 });
   }
   async upload(buffer: Buffer, key: string, contentType: string): Promise<string> {
@@ -53,12 +51,10 @@ export class R2StorageProvider implements IStorageProvider {
         ContentType: contentType,
       })
     );
-
     return `${process.env.NEXT_PUBLIC_R2_DOMAIN}/${key}`;
   }
   async delete(key: string): Promise<boolean> {
     if (!key) return false;
-
     try {
       await this.client.send(
         new DeleteObjectCommand({
@@ -66,11 +62,9 @@ export class R2StorageProvider implements IStorageProvider {
           Key: key,
         })
       );
-
       return true;
     } catch (error) {
       console.error("Error deleting file from R2:", error);
-
       return false;
     }
   }
@@ -81,13 +75,11 @@ export class R2StorageProvider implements IStorageProvider {
         Prefix: prefix,
       });
       const response = await this.client.send(command);
-
       return (response.Contents || [])
         .map((obj) => obj.Key)
         .filter((key): key is string => key !== undefined);
     } catch (error) {
       console.error("Error listing files from R2:", error);
-
       return [];
     }
   }

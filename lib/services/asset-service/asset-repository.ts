@@ -29,13 +29,11 @@ export class AssetRepository implements IAssetRepository {
     }
   ): Promise<DatabaseAsset[]> {
     const where: { userId: string; type?: AssetType } = { userId };
-
     if (options.filter === "images") {
       where.type = "IMAGE";
     } else if (options.filter === "videos") {
       where.type = "VIDEO";
     }
-
     const orderByField =
       options.sortBy === "date" ? "createdAt" : options.sortBy === "name" ? "url" : "createdAt";
     const assets = await prisma.asset.findMany({
@@ -57,7 +55,6 @@ export class AssetRepository implements IAssetRepository {
         createdAt: true,
       },
     });
-
     return assets;
   }
   async findByIdForUser(assetId: string, userId: string): Promise<DatabaseAsset | null> {
@@ -80,7 +77,6 @@ export class AssetRepository implements IAssetRepository {
         createdAt: true,
       },
     });
-
     return asset;
   }
   async countByUser(userId: string): Promise<{ total: number; images: number; videos: number }> {
@@ -89,7 +85,6 @@ export class AssetRepository implements IAssetRepository {
       prisma.asset.count({ where: { userId, type: "IMAGE" } }),
       prisma.asset.count({ where: { userId, type: "VIDEO" } }),
     ]);
-
     return { total, images, videos };
   }
   async create(userId: string, input: CreateAssetInput): Promise<DatabaseAsset> {
@@ -122,18 +117,15 @@ export class AssetRepository implements IAssetRepository {
   }
   async deleteByIdForUser(assetId: string, userId: string): Promise<DatabaseAsset | null> {
     const asset = await this.findByIdForUser(assetId, userId);
-
     if (!asset) {
       return null;
     }
-
     await prisma.generation.deleteMany({
       where: { assetId },
     });
     await prisma.asset.delete({
       where: { id: assetId },
     });
-
     return asset;
   }
 }

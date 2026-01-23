@@ -1,5 +1,4 @@
 "use client";
-
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
@@ -7,7 +6,6 @@ import { User } from "lucide-react";
 interface AppHeaderProps {
   title?: string;
 }
-
 export function AppHeader({ title = "Studio" }: AppHeaderProps) {
   return (
     <header

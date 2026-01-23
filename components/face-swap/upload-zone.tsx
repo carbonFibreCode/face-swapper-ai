@@ -1,5 +1,4 @@
 "use client";
-
 import React, { useCallback, useState } from "react";
 import { useDropzone, FileRejection } from "react-dropzone";
 import { cn } from "@/lib/utils";
@@ -12,7 +11,6 @@ interface UploadZoneProps {
   className?: string;
   file?: File | null;
 }
-
 export function UploadZone({
   onFileSelect,
   accept,
@@ -26,7 +24,6 @@ export function UploadZone({
     (acceptedFiles: File[], fileRejections: FileRejection[]) => {
       if (fileRejections.length > 0) {
         const error = fileRejections[0].errors[0];
-
         if (error.code === "file-too-large") {
           toast.error(`File is too large. Max size is ${Math.round(maxSize / 1024 / 1024)}MB`);
         } else if (error.code === "file-invalid-type") {
@@ -34,18 +31,13 @@ export function UploadZone({
         } else {
           toast.error(error.message);
         }
-
         return;
       }
-
       if (acceptedFiles.length > 0) {
         const selectedFile = acceptedFiles[0];
-
         onFileSelect(selectedFile);
-
         if (selectedFile.type.startsWith("image") || selectedFile.type.startsWith("video")) {
           const url = URL.createObjectURL(selectedFile);
-
           setPreview(url);
         }
       }
@@ -58,7 +50,6 @@ export function UploadZone({
     maxSize,
     multiple: false,
   });
-
   return (
     <div
       {...getRootProps()}

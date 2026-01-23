@@ -48,6 +48,7 @@ export function VideoUploadBox({
 
     return () => URL.revokeObjectURL(url);
   }, [file, assetUrl]);
+
   const onDrop = useCallback(
     (acceptedFiles: File[], fileRejections: FileRejection[]) => {
       if (fileRejections.length > 0) {
@@ -79,7 +80,7 @@ export function VideoUploadBox({
     multiple: false,
     noClick: !!file,
   });
-
+  
   const handleChangeClick = (e: React.MouseEvent) => {
     e.stopPropagation();
     fileInputRef.current?.click();
@@ -107,7 +108,7 @@ export function VideoUploadBox({
   };
 
   const hasFile = (!!file || !!assetUrl) && !!previewUrl;
-
+  
   return (
     <div className={cn("relative", disabled && "opacity-50 pointer-events-none", className)}>
       <div
@@ -125,13 +126,6 @@ export function VideoUploadBox({
         )}
       >
         <input {...getInputProps()} />
-        <input
-          ref={fileInputRef}
-          type="file"
-          accept="video/*"
-          className="hidden"
-          onChange={handleFileChange}
-        />
         {hasFile ? (
           <div
             className="absolute inset-0 w-full h-full rounded-2xl overflow-hidden"
@@ -164,6 +158,13 @@ export function VideoUploadBox({
           </div>
         )}
       </div>
+      <input
+        ref={fileInputRef}
+        type="file"
+        accept="video/*"
+        className="hidden"
+        onChange={handleFileChange}
+      />
       <div className="absolute top-3 left-3 z-10">
         <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-black/60 backdrop-blur-sm text-white text-xs font-medium">
           <Video className="w-3 h-3" />

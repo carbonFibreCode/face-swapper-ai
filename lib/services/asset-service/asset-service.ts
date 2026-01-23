@@ -37,7 +37,6 @@ export class AssetService implements IAssetService {
     try {
       const urlObj = new URL(url);
       const path = urlObj.pathname;
-
       return path.startsWith("/") ? path.substring(1) : path;
     } catch {
       return null;
@@ -64,27 +63,22 @@ export class AssetService implements IAssetService {
         assets.map(async (asset) => {
           const dto = mapAssetToDTO(asset);
           const mainKey = this.extractKeyFromUrl(asset.url);
-
           if (mainKey) {
             dto.url = await this.storage.getPresignedGetUrl(mainKey);
             dto.key = mainKey;
           }
-
           if (asset.thumbnailUrl && asset.thumbnailUrl !== asset.url) {
             const thumbKey = this.extractKeyFromUrl(asset.thumbnailUrl);
-
             if (thumbKey) {
               dto.thumbnailUrl = await this.storage.getPresignedGetUrl(thumbKey);
             }
           } else if (mainKey) {
             dto.thumbnailUrl = dto.url;
           }
-
           return dto;
         })
       );
       const totalPages = Math.ceil(counts.total / validatedInput.limit);
-
       return {
         success: true,
         data: {
@@ -105,7 +99,6 @@ export class AssetService implements IAssetService {
         error: error instanceof Error ? error.message : "Unknown error",
         stack: error instanceof Error ? error.stack : undefined,
       });
-
       if (error instanceof Error && error.name === "ZodError") {
         return {
           success: false,
@@ -113,7 +106,6 @@ export class AssetService implements IAssetService {
           code: "VALIDATION_ERROR",
         };
       }
-
       return {
         success: false,
         error: "Failed to fetch assets",
@@ -124,7 +116,6 @@ export class AssetService implements IAssetService {
   async getAsset(userId: string, assetId: string): Promise<AssetServiceResult<GetAssetOutput>> {
     try {
       const asset = await this.repository.findByIdForUser(assetId, userId);
-
       if (!asset) {
         return {
           success: false,
@@ -132,25 +123,20 @@ export class AssetService implements IAssetService {
           code: "NOT_FOUND",
         };
       }
-
       const dto = mapAssetToDTO(asset);
       const mainKey = this.extractKeyFromUrl(asset.url);
-
       if (mainKey) {
         dto.url = await this.storage.getPresignedGetUrl(mainKey);
         dto.key = mainKey;
       }
-
       if (asset.thumbnailUrl && asset.thumbnailUrl !== asset.url) {
         const thumbKey = this.extractKeyFromUrl(asset.thumbnailUrl);
-
         if (thumbKey) {
           dto.thumbnailUrl = await this.storage.getPresignedGetUrl(thumbKey);
         }
       } else if (mainKey) {
         dto.thumbnailUrl = dto.url;
       }
-
       return {
         success: true,
         data: dto,
@@ -161,7 +147,6 @@ export class AssetService implements IAssetService {
         assetId,
         error: error instanceof Error ? error.message : "Unknown error",
       });
-
       return {
         success: false,
         error: "Failed to fetch asset",
@@ -176,7 +161,6 @@ export class AssetService implements IAssetService {
     try {
       const validatedInput = DeleteAssetInputSchema.parse(input);
       const deletedAsset = await this.repository.deleteByIdForUser(validatedInput.assetId, userId);
-
       if (!deletedAsset) {
         return {
           success: false,
@@ -184,14 +168,12 @@ export class AssetService implements IAssetService {
           code: "NOT_FOUND",
         };
       }
-
       if (deletedAsset.url) {
         try {
           const urlObj = new URL(deletedAsset.url);
           const key = urlObj.pathname.startsWith("/")
             ? urlObj.pathname.substring(1)
             : urlObj.pathname;
-
           if (key) {
             await this.storage.delete(key);
             this.logger.info("[AssetService] Deleted main file from storage:", { key });
@@ -200,14 +182,12 @@ export class AssetService implements IAssetService {
           this.logger.error("[AssetService] Failed to delete file from storage:", { error: e });
         }
       }
-
       if (deletedAsset.thumbnailUrl && deletedAsset.thumbnailUrl !== deletedAsset.url) {
         try {
           const urlObj = new URL(deletedAsset.thumbnailUrl);
           const key = urlObj.pathname.startsWith("/")
             ? urlObj.pathname.substring(1)
             : urlObj.pathname;
-
           if (key) {
             await this.storage.delete(key);
             this.logger.info("[AssetService] Deleted thumbnail from storage:", { key });
@@ -218,12 +198,10 @@ export class AssetService implements IAssetService {
           });
         }
       }
-
       this.logger.info("[AssetService] Asset deleted:", {
         assetId: validatedInput.assetId,
         userId,
       });
-
       return { success: true };
     } catch (error) {
       this.logger.error("[AssetService] deleteAsset error:", {
@@ -231,7 +209,6 @@ export class AssetService implements IAssetService {
         input,
         error: error instanceof Error ? error.message : "Unknown error",
       });
-
       return {
         success: false,
         error: "Failed to delete asset",
@@ -250,16 +227,13 @@ export class AssetService implements IAssetService {
       const urlObj = new URL(asset.url);
       const path = urlObj.pathname;
       const key = path.startsWith("/") ? path.substring(1) : path;
-
       if (key) dto.key = key;
-
       return {
         success: true,
         data: dto,
       };
     } catch (error) {
       this.logger.error("[AssetService] createAsset error:", { error });
-
       if (error instanceof Error && error.name === "ZodError") {
         return {
           success: false,
@@ -267,7 +241,6 @@ export class AssetService implements IAssetService {
           code: "VALIDATION_ERROR",
         };
       }
-
       return {
         success: false,
         error: "Failed to save asset",
@@ -280,7 +253,6 @@ export class AssetService implements IAssetService {
       return await this.storage.list(`uploads/${userId}/`);
     } catch (error) {
       this.logger.error("[AssetService] listAssetsFromR2 error:", { error });
-
       return [];
     }
   }

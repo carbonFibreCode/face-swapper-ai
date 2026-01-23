@@ -126,17 +126,8 @@ export function FaceUploadBox({
         )}
       >
         <input {...getInputProps()} />
-        {}
-        <input
-          ref={fileInputRef}
-          type="file"
-          accept="image/jpeg,image/png,image/webp"
-          className="hidden"
-          onChange={handleFileChange}
-        />
         {hasFile ? (
           <div className="absolute inset-0 w-full h-full bg-black rounded-2xl overflow-hidden">
-            {}
             <img src={previewUrl} alt="Face preview" className="w-full h-full object-cover" />
           </div>
         ) : (
@@ -164,7 +155,13 @@ export function FaceUploadBox({
           </div>
         )}
       </div>
-      {}
+      <input
+        ref={fileInputRef}
+        type="file"
+        accept="image/jpeg,image/png,image/webp"
+        className="hidden"
+        onChange={handleFileChange}
+      />
       <div className="absolute top-3 left-3 z-10">
         <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-black/60 backdrop-blur-sm text-white text-xs font-medium">
           <User className="w-3 h-3" />

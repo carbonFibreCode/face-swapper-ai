@@ -12,7 +12,6 @@ export class BillingService implements IBillingService {
         this.repository.getTotalConsumed(userId),
         this.repository.getRecentTransactions(userId, 5),
       ]);
-
       if (!userBilling) {
         return {
           success: false,
@@ -20,7 +19,6 @@ export class BillingService implements IBillingService {
           code: "USER_NOT_FOUND",
         };
       }
-
       const totalCreditsEver = consumed + userBilling.credits;
       const percentUsed =
         totalCreditsEver > 0 ? Math.round((consumed / totalCreditsEver) * 100) : 0;
@@ -30,7 +28,6 @@ export class BillingService implements IBillingService {
         consumed,
         percentUsed,
       };
-
       return {
         success: true,
         data: {
@@ -45,7 +42,6 @@ export class BillingService implements IBillingService {
         error: error instanceof Error ? error.message : "Unknown error",
         stack: error instanceof Error ? error.stack : undefined,
       });
-
       return {
         success: false,
         error: "Failed to retrieve billing information",

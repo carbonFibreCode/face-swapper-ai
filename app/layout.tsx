@@ -11,12 +11,10 @@ const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
   subsets: ["latin"],
 });
-
 export const metadata: Metadata = {
   title: "FaceSwapper.ai - AI Face Swap",
   description: "Swap faces in videos with AI magic",
 };
-
 export default function RootLayout({
   children,
 }: Readonly<{

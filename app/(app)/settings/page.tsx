@@ -6,14 +6,11 @@ export const metadata: Metadata = {
   title: "Settings | FaceSwapper.ai",
   description: "Manage your profile and account settings",
 };
-
 export default async function SettingsPage() {
   const result = await getSettings();
-
   if (!result.success && result.code === "UNAUTHORIZED") {
     redirect("/login");
   }
-
   if (!result.success) {
     return (
       <div className="p-8 text-center text-destructive">
@@ -21,7 +18,6 @@ export default async function SettingsPage() {
       </div>
     );
   }
-
   return (
     <div className="flex-1 space-y-4 p-8 pt-6">
       <div className="flex items-center justify-between space-y-2">

@@ -1,5 +1,4 @@
 "use client";
-
 import { useState } from "react";
 import { Trash2, Download, ExternalLink, Image as ImageIcon, Loader2, Video } from "lucide-react";
 import { Asset, formatDuration } from "@/lib/types/assets";
@@ -19,7 +18,6 @@ import {
 interface AssetCardProps {
   asset: Asset;
 }
-
 export function AssetCard({ asset }: AssetCardProps) {
   const [isHovered, setIsHovered] = useState(false);
   const [thumbnailError, setThumbnailError] = useState(false);
@@ -27,19 +25,15 @@ export function AssetCard({ asset }: AssetCardProps) {
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const deleteAsset = useAssetsStore((state) => state.deleteAsset);
   const router = useRouter();
-
   const handleDeleteClick = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
     setIsDeleteDialogOpen(true);
   };
-
   const executeDelete = async () => {
     setIsDeleting(true);
-
     try {
       const success = await deleteAsset(asset.id);
-
       if (success) {
         toast.success("Asset deleted successfully");
         setIsDeleteDialogOpen(false);
@@ -52,15 +46,12 @@ export function AssetCard({ asset }: AssetCardProps) {
       setIsDeleting(false);
     }
   };
-
   const handleDownload = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
     window.open(asset.url, "_blank");
   };
-
   const isVideo = asset.type === "video";
-
   return (
     <div
       className="group relative"
@@ -115,21 +106,17 @@ export function AssetCard({ asset }: AssetCardProps) {
                 e.preventDefault();
                 e.stopPropagation();
                 const { setSelectedVideo, setSelectedImage } = useEditorStore.getState();
-
                 if (asset.type === "video") {
                   setSelectedVideo(asset);
-
                   if (useEditorStore.getState().selectedImage?.type === "video") {
                     setSelectedImage(null);
                   }
                 } else {
                   setSelectedImage(asset);
-
                   if (useEditorStore.getState().selectedVideo?.type === "image") {
                     setSelectedVideo(null);
                   }
                 }
-
                 router.push("/editor");
               }}
               className="px-3 py-1.5 rounded-lg bg-white/20 backdrop-blur-sm text-white text-sm font-medium hover:bg-white/30 transition-colors flex items-center gap-1.5"

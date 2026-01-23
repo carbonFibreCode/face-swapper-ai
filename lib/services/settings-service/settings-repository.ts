@@ -17,9 +17,7 @@ export class SettingsRepository implements ISettingsRepository {
         image: true,
       },
     });
-
     if (!user) return null;
-
     return {
       id: user.id,
       name: user.name,
@@ -30,7 +28,6 @@ export class SettingsRepository implements ISettingsRepository {
   }
   async updateUser(userId: string, data: UpdateProfileDTO): Promise<SettingsDTO> {
     const updateData: Prisma.UserUpdateInput = {};
-
     if (data.name !== undefined) updateData.name = data.name;
     if (data.image !== undefined) updateData.image = data.image;
     const user = await prisma.user.update({
@@ -43,7 +40,6 @@ export class SettingsRepository implements ISettingsRepository {
         image: true,
       },
     });
-
     return {
       id: user.id,
       name: user.name,

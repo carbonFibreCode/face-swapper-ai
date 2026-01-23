@@ -1,5 +1,4 @@
 "use client";
-
 import { LayoutDashboard, Video, Images, Settings, CreditCard, LogOut } from "lucide-react";
 import {
   Sidebar,
@@ -46,16 +45,13 @@ const items = [
     icon: Settings,
   },
 ];
-
 export function AppSidebar() {
   const pathname = usePathname();
   const router = useRouter();
-
   const handleSignOut = async () => {
     await signOut();
     router.push("/login");
   };
-
   return (
     <Sidebar variant="floating" collapsible="icon">
       <SidebarHeader>
